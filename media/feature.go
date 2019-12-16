@@ -44,10 +44,20 @@ type NewMediaFeatureOptions struct {
 	NameFunction     NewMediaFeatureNameFunc
 	DepictsPlacetype string
 	CustomProperties map[string]interface{}
-	IDProvider       id.Provider
 }
 
 func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
+
+	pr, err := id.NewProvider(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return NewMediaFeatureWithProvider(ctx, pr, rsp, depicts, opts)
+}
+
+func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp gather.GatherPhotosResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
 
 	if opts.Repo == "" {
 		return nil, errors.New("Missing wof:repo")
@@ -81,21 +91,6 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 	source_geom := whosonfirst.Source(depicts)
 
 	props := make(map[string]interface{})
-
-	var pr id.Provider
-
-	if opts.IDProvider != nil {
-		pr = opts.IDProvider
-	} else {
-
-		p, err := id.NewProvider(ctx)
-
-		if err != nil {
-			return nil, err
-		}
-
-		pr = p
-	}
 
 	wof_id, err := pr.NewID()
 
@@ -178,6 +173,12 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 	props["media:fingerprint"] = rsp.Fingerprint
 
 	props["mz:is_approximate"] = 1
+	props["mz:latitude"] = depicts_coords.Y
+	props["mz:longitude"] = depicts_coords.X
+	props["mz:min_latitude"] = depicts_coords.Y
+	props["mz:min_longitude"] = depicts_coords.X
+	props["mz:max_latitude"] = depicts_coords.Y
+	props["mz:max_longitude"] = depicts_coords.X
 
 	if opts.CustomProperties != nil {
 		for k, v := range opts.CustomProperties {
@@ -190,7 +191,8 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 
 	case ".jpg", ".jpeg":
 
-		im_fh, err := opts.SourceBucket.NewReader(ctx, rsp.Path, nil)
+		im_fname := filepath.Base(rsp.Path)
+		im_fh, err := opts.SourceBucket.NewReader(ctx, im_fname, nil)
 
 		if err != nil {
 			return nil, err
