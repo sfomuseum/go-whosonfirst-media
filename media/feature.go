@@ -1,6 +1,7 @@
 package media
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -173,12 +174,15 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp gather
 	props["media:fingerprint"] = rsp.Fingerprint
 
 	props["mz:is_approximate"] = 1
-	props["mz:latitude"] = depicts_coords.Y
-	props["mz:longitude"] = depicts_coords.X
-	props["mz:min_latitude"] = depicts_coords.Y
-	props["mz:min_longitude"] = depicts_coords.X
-	props["mz:max_latitude"] = depicts_coords.Y
-	props["mz:max_longitude"] = depicts_coords.X
+
+	/*
+		props["mz:latitude"] = depicts_coords.Y
+		props["mz:longitude"] = depicts_coords.X
+		props["mz:min_latitude"] = depicts_coords.Y
+		props["mz:min_longitude"] = depicts_coords.X
+		props["mz:max_latitude"] = depicts_coords.Y
+		props["mz:max_longitude"] = depicts_coords.X
+	*/
 
 	if opts.CustomProperties != nil {
 		for k, v := range opts.CustomProperties {
@@ -275,5 +279,11 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp gather
 		return nil, err
 	}
 
-	return feature.LoadFeature(enc_f)
+	// see the way we're not trying to return a WOF specific
+	// feature? that is on purpose since we have no idea what
+	// sort of properties (notably  wof:placetype) have been
+	// set above (20191216/thisisaaronland)
+
+	br := bytes.NewReader(enc_f)
+	return feature.LoadGeoJSONFeatureFromReader(br)
 }
