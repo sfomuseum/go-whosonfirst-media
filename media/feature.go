@@ -42,7 +42,7 @@ type NewMediaFeatureOptions struct {
 	Repo             string
 	NameFunction     NewMediaFeatureNameFunc
 	DepictsPlacetype string
-	// something something something custom properties...
+	CustomProperties map[string]interface{}
 }
 
 func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
@@ -157,12 +157,11 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 
 	props["mz:is_approximate"] = 1
 
-	// start of custom props
-
-	// FIX ME: custom properties
-
-	// end of custom props
-
+	if opts.CustomProperties != nil {
+		for k, v := range opts.CustomProperties {
+			props[k] = v
+		}
+	}
 	var exif_data *exif.Exif
 
 	switch filepath.Ext(rsp.Path) {
