@@ -51,12 +51,15 @@ type IIIFProcessReportPalette struct {
 
 type IIIFProcessReportURIs map[string]string
 
+type URITemplateFunc func([]byte) ([]byte, error)
+
 type ReportProcessor struct {
-	Reports   *blob.Bucket
-	Pending   *blob.Bucket
-	WriterURI string
-	Exporter  wof_exporter.Exporter
-	Prune     bool
+	Reports         *blob.Bucket
+	Pending         *blob.Bucket
+	WriterURI       string
+	Exporter        wof_exporter.Exporter
+	Prune           bool
+	URITemplateFunc URITemplateFunc
 }
 
 func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string) error {
@@ -202,7 +205,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	defer wof_fh.Close()
 
-	f, err := feature.LoadFeatureFromReader(wof_fh)
+	f, err := feature.LoadGeoJSONFeatureFromReader(wof_fh)
 
 	if err != nil {
 		return err
@@ -364,15 +367,6 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 		sizes[k] = sz
 	}
 
-	return nil, errors.New("Fix URI template")
-	uri_template := ""
-
-	body, err = sjson.SetBytes(body, "properties.media:uri_template", uri_template)
-
-	if err != nil {
-		return nil, err
-	}
-
 	body, err = sjson.SetBytes(body, "properties.media:properties.sizes", sizes)
 
 	if err != nil {
@@ -390,6 +384,13 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 	if !source_rsp.Exists() {
 
 		body, err = sjson.SetBytes(body, "properties.media:source", "unknown")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if p.URITemplateFunc != nil {
+		body, err = p.URITemplateFunc(body)
 
 		if err != nil {
 			return nil, err
