@@ -11,6 +11,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
+	"github.com/whosonfirst/go-whosonfirst-id"
 	"github.com/whosonfirst/go-whosonfirst-placetypes"
 	"gocloud.dev/blob"
 	_ "log"
@@ -43,6 +44,7 @@ type NewMediaFeatureOptions struct {
 	NameFunction     NewMediaFeatureNameFunc
 	DepictsPlacetype string
 	CustomProperties map[string]interface{}
+	IDProvider       id.Provider
 }
 
 func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
@@ -80,7 +82,26 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 
 	props := make(map[string]interface{})
 
-	// FIX ME: GET wof:id HERE
+	var pr id.Provider
+
+	if opts.IDProvider != nil {
+		pr = opts.IDProvider
+	} else {
+
+		p, err := id.NewProvider(ctx)
+
+		if err != nil {
+			return nil, err
+		}
+
+		pr = p
+	}
+
+	wof_id, err := pr.NewID()
+
+	if err != nil {
+		return nil, err
+	}
 
 	wof_name := depicts_name
 
@@ -135,11 +156,12 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherPhotosResponse, depic
 		return true
 	})
 
-	props["edtf:inception"] = inception
-	props["edtf:cessation"] = cessation
-
+	props["wof:id"] = wof_id
 	props["wof:name"] = wof_name
 	props["wof:repo"] = opts.Repo
+
+	props["edtf:inception"] = inception
+	props["edtf:cessation"] = cessation
 
 	props["wof:placetype"] = "media"
 	props["wof:parent_id"] = depicts_id
