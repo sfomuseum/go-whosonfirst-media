@@ -16,48 +16,50 @@ import (
 	"sync"
 )
 
+type AppendLookupFunc func(*sync.Map, io.ReadCloser) error
+
+func FingerprintAppendLookupFunc(lu *sync.Map, fh io.ReadCloser) error {
+
+	body, err := ioutil.ReadAll(fh)
+
+	if err != nil {
+		return err
+	}
+
+	fp_rsp := gjson.GetBytes(body, "properties.media:fingerprint")
+
+	if !fp_rsp.Exists() {
+		log.Println("MISSING FINGERPRINT")
+		return nil
+	}
+
+	id_rsp := gjson.GetBytes(body, "properties.wof:id")
+
+	if !id_rsp.Exists() {
+		log.Println("MISSING ID")
+		return nil
+	}
+
+	fp := fp_rsp.String()
+	id := id_rsp.Int()
+
+	_, exists := lu.LoadOrStore(fp, id)
+
+	if exists {
+		msg := fmt.Sprintf("Existing fingerprint key for %s", fp)
+		return errors.New(msg)
+	}
+
+	// log.Println(id_rsp.Int(), fp_rsp.String())
+	return nil
+}
+
 // this should be updated to take an arbitrary list of "lookup sources", as in repos, buckets, etc.
 // (20191205/thisisaaronland)
 
-func NewLookupMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
+func NewLookupMapFromRepoAndBucket(ctx context.Context, append_func AppendLookupFunc, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
 
 	lu := new(sync.Map)
-
-	append_lookup := func(fh io.ReadCloser) error {
-
-		body, err := ioutil.ReadAll(fh)
-
-		if err != nil {
-			return err
-		}
-
-		fp_rsp := gjson.GetBytes(body, "properties.media:fingerprint")
-
-		if !fp_rsp.Exists() {
-			log.Println("MISSING FINGERPRINT")
-			return nil
-		}
-
-		id_rsp := gjson.GetBytes(body, "properties.wof:id")
-
-		if !id_rsp.Exists() {
-			log.Println("MISSING ID")
-			return nil
-		}
-
-		fp := fp_rsp.String()
-		id := id_rsp.Int()
-
-		_, exists := lu.LoadOrStore(fp, id)
-
-		if exists {
-			msg := fmt.Sprintf("Existing fingerprint key for %s", fp)
-			return errors.New(msg)
-		}
-
-		// log.Println(id_rsp.Int(), fp_rsp.String())
-		return nil
-	}
 
 	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
 		URL: repo_url,
@@ -83,7 +85,7 @@ func NewLookupMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket 
 
 		defer fh.Close()
 
-		return append_lookup(fh)
+		return append_func(lu, fh)
 	})
 
 	bucket_iter := bucket.List(nil)
@@ -111,8 +113,14 @@ func NewLookupMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket 
 
 		defer fh.Close()
 
-		append_lookup(fh)
+		append_func(lu, fh)
 	}
 
 	return lu, nil
 }
+
+func NewFingerprintMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
+
+	return NewLookupMapFromRepoAndBucket(ctx, FingerprintAppendLookupFunc, repo_url, bucket)
+}
+
