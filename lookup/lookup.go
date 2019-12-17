@@ -123,4 +123,3 @@ func NewFingerprintMapFromRepoAndBucket(ctx context.Context, repo_url string, bu
 
 	return NewLookupMapFromRepoAndBucket(ctx, FingerprintAppendLookupFunc, repo_url, bucket)
 }
-

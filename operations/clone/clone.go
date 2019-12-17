@@ -4,7 +4,6 @@ package clone
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"gocloud.dev/blob"
 	"io"
@@ -54,19 +53,7 @@ func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
 		}
 	}
 
-	var image_path string
-
-	switch opts.ImageID {
-
-	case -1:
-		image_path = opts.Filename
-	default:
-
-		// FIX ME...what
-		// pass
-
-		return target_path, errors.New("Please implement me")
-	}
+	image_path := opts.Filename
 
 	source_fh, err := opts.Source.NewReader(ctx, image_path, nil)
 
