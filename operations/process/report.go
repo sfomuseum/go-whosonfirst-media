@@ -56,7 +56,7 @@ type URITemplateFunc func([]byte) ([]byte, error)
 type ReportProcessor struct {
 	Reports         *blob.Bucket
 	Pending         *blob.Bucket
-	WriterURI       string
+	DataURI         string
 	Exporter        wof_exporter.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
@@ -233,13 +233,13 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	repo := repo_rsp.String()
 
-	wr_uri := p.WriterURI
+	data_uri := p.DataURI
 
-	if strings.Contains(p.WriterURI, "%s") {
-		wr_uri = fmt.Sprintf(p.WriterURI, repo)
+	if strings.Contains(p.DataURI, "%s") {
+		data_uri = fmt.Sprintf(p.DataURI, repo)
 	}
 
-	wr, err := wof_writer.NewWriter(ctx, wr_uri)
+	wr, err := wof_writer.NewWriter(ctx, data_uri)
 
 	if err != nil {
 		return err
