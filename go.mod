@@ -12,7 +12,7 @@ require (
 	github.com/tidwall/gjson v1.3.5
 	github.com/tidwall/sjson v1.0.4
 	github.com/whosonfirst/go-reader v0.0.3
-	github.com/whosonfirst/go-whosonfirst-crawl v0.2.0
+	github.com/whosonfirst/go-whosonfirst-crawl v0.2.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-export v0.3.0
 	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.0
 	github.com/whosonfirst/go-whosonfirst-id v0.0.2

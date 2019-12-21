@@ -1,15 +1,16 @@
 package common
 
 import (
+	"context"
 	"crypto/sha1"
 	"encoding/hex"
+	"gocloud.dev/blob"
 	"io"
-	"os"
 )
 
-func FingerprintFile(path string) (string, error) {
+func FingerprintFile(ctx context.Context, bucket *blob.Bucket, path string) (string, error) {
 
-	fh, err := os.Open(path)
+	fh, err := bucket.NewReader(ctx, path, nil)
 
 	if err != nil {
 		return "", err

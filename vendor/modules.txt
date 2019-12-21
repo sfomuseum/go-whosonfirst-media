@@ -118,8 +118,6 @@ github.com/tidwall/sjson
 github.com/tomtaylor/go-whosonfirst-format
 # github.com/whosonfirst/go-reader v0.0.3
 github.com/whosonfirst/go-reader
-# github.com/whosonfirst/go-whosonfirst-crawl v0.2.0
-github.com/whosonfirst/go-whosonfirst-crawl
 # github.com/whosonfirst/go-whosonfirst-export v0.3.0
 github.com/whosonfirst/go-whosonfirst-export/exporter
 github.com/whosonfirst/go-whosonfirst-export
@@ -153,8 +151,6 @@ github.com/whosonfirst/go-whosonfirst-spr
 github.com/whosonfirst/go-whosonfirst-uri
 # github.com/whosonfirst/go-writer v0.0.2
 github.com/whosonfirst/go-writer
-# github.com/whosonfirst/walk v0.0.0-20160803014805-c0a349674b73
-github.com/whosonfirst/walk
 # github.com/whosonfirst/warning v0.1.0
 github.com/whosonfirst/warning
 # github.com/xanzy/ssh-agent v0.2.1
@@ -177,11 +173,13 @@ go.opencensus.io/trace/tracestate
 go.opencensus.io
 # gocloud.dev v0.18.0
 gocloud.dev/blob
+gocloud.dev/blob/fileblob
 gocloud.dev/blob/driver
 gocloud.dev/gcerrors
 gocloud.dev/internal/gcerr
 gocloud.dev/internal/oc
 gocloud.dev/internal/openurl
+gocloud.dev/internal/escape
 gocloud.dev/internal/retry
 # golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 golang.org/x/crypto/openpgp

@@ -1,19 +1,17 @@
 package common
 
-// TO DO: update to use blob.Bucket...
-
 import (
 	"context"
 	"errors"
 	"github.com/corona10/goimagehash"
 	"image"
 	"log"
-	"os"
+	"gocloud.dev/blob"
 )
 
-func ImageHashes(ctx context.Context, im_path string) error {
+func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error {
 
-	fh, err := os.Open(im_path)
+	fh, err := bucket.NewReader(ctx, im_path, nil)
 
 	if err != nil {
 		return err

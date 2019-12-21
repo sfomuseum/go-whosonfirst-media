@@ -1,37 +1,35 @@
 package gather
 
-// TO DO: update to use blob.Bucket...
-
 import (
 	"context"
 	"github.com/sfomuseum/go-whosonfirst-media/common"
-	"github.com/whosonfirst/go-whosonfirst-crawl"
+	"gocloud.dev/blob"
+	"io"
 	"log"
 	"mime"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 )
 
-type GatherPhotosResponse struct {
+type GatherImagesResponse struct {
 	Path        string
 	Fingerprint string
 	MimeType    string
 }
 
-type GatherPhotoCallbackFunc func(GatherPhotosResponse) error
+type GatherImageCallbackFunc func(GatherImagesResponse) error
 
-func GatherPhotos(ctx context.Context, root string, cb GatherPhotoCallbackFunc) error {
+func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallbackFunc) error {
 
-	gather_ch := make(chan GatherPhotosResponse)
+	gather_ch := make(chan GatherImagesResponse)
 
 	done_ch := make(chan bool)
 	err_ch := make(chan error)
 
 	go func() {
 
-		err := CrawlPhotos(ctx, root, gather_ch)
+		err := CrawlImages(ctx, bucket, gather_ch)
 
 		if err != nil {
 			err_ch <- err
@@ -54,7 +52,7 @@ func GatherPhotos(ctx context.Context, root string, cb GatherPhotoCallbackFunc) 
 
 			wg.Add(1)
 
-			go func(rsp GatherPhotosResponse) {
+			go func(rsp GatherImagesResponse) {
 
 				defer wg.Done()
 
@@ -77,9 +75,13 @@ func GatherPhotos(ctx context.Context, root string, cb GatherPhotoCallbackFunc) 
 	return nil
 }
 
-func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosResponse) error {
+func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan GatherImagesResponse) error {
 
-	cb := func(im_path string, info os.FileInfo) error {
+	opts := &blob.ListOptions{}
+
+	iter := bucket.List(opts)
+
+	for {
 
 		select {
 		case <-ctx.Done():
@@ -88,9 +90,17 @@ func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosRespo
 			// pass
 		}
 
-		if info.IsDir() {
-			return nil
+		obj, err := iter.Next(ctx)
+
+		if err == io.EOF {
+			break
 		}
+
+		if err != nil {
+			return err
+		}
+
+		im_path := obj.Key
 
 		ext := filepath.Ext(im_path)
 
@@ -104,13 +114,13 @@ func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosRespo
 			return nil
 		}
 
-		fp, err := common.FingerprintFile(im_path)
+		fp, err := common.FingerprintFile(ctx, bucket, im_path)
 
 		if err != nil {
 			return err
 		}
 
-		rsp_ch <- GatherPhotosResponse{
+		rsp_ch <- GatherImagesResponse{
 			Path:        im_path,
 			Fingerprint: fp,
 			MimeType:    t,
@@ -119,6 +129,5 @@ func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosRespo
 		return nil
 	}
 
-	cr := crawl.NewCrawler(root)
-	return cr.Crawl(cb)
+	return nil
 }
