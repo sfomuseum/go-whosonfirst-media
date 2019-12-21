@@ -4,9 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	_ "gocloud.dev/blob/fileblob"
-	"gocloud.dev/blob"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
+	"gocloud.dev/blob"
+	_ "gocloud.dev/blob/fileblob"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 )
 
@@ -21,10 +24,11 @@ func main() {
 		log.Println(rsp)
 		return nil
 	}
-	
+
 	for _, path := range flag.Args() {
 
 		uri := fmt.Sprintf("file://%s", path)
+		log.Println(uri)
 
 		bucket, err := blob.OpenBucket(ctx, uri)
 

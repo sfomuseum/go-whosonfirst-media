@@ -77,57 +77,73 @@ func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallba
 
 func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan GatherImagesResponse) error {
 
-	opts := &blob.ListOptions{}
+	var list func(context.Context, *blob.Bucket, string) error
 
-	iter := bucket.List(opts)
+	list = func(ctx context.Context, b *blob.Bucket, prefix string) error {
 
-	for {
+		iter := b.List(&blob.ListOptions{
+			Delimiter: "/",
+			Prefix:    prefix,
+		})
 
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			// pass
-		}
+		for {
 
-		obj, err := iter.Next(ctx)
+			select {
+			case <-ctx.Done():
+				return nil
+			default:
+				// pass
+			}
 
-		if err == io.EOF {
-			break
-		}
+			obj, err := iter.Next(ctx)
 
-		if err != nil {
-			return err
-		}
+			if err == io.EOF {
+				break
+			}
 
-		im_path := obj.Key
+			if err != nil {
+				return err
+			}
 
-		ext := filepath.Ext(im_path)
+			if obj.IsDir {
 
-		t := mime.TypeByExtension(ext)
+				err := list(ctx, b, obj.Key)
 
-		if t == "" {
-			return nil
-		}
+				if err != nil {
+					return err
+				}
 
-		if !strings.HasPrefix(t, "image/") {
-			return nil
-		}
+				continue
+			}
 
-		fp, err := common.FingerprintFile(ctx, bucket, im_path)
+			im_path := obj.Key
+			ext := filepath.Ext(im_path)
 
-		if err != nil {
-			return err
-		}
+			t := mime.TypeByExtension(ext)
 
-		rsp_ch <- GatherImagesResponse{
-			Path:        im_path,
-			Fingerprint: fp,
-			MimeType:    t,
+			if t == "" {
+				continue
+			}
+
+			if !strings.HasPrefix(t, "image/") {
+				continue
+			}
+
+			fp, err := common.FingerprintFile(ctx, bucket, im_path)
+
+			if err != nil {
+				return err
+			}
+
+			rsp_ch <- GatherImagesResponse{
+				Path:        im_path,
+				Fingerprint: fp,
+				MimeType:    t,
+			}
 		}
 
 		return nil
 	}
 
-	return nil
+	return list(ctx, bucket, "")
 }

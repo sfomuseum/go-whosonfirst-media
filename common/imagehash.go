@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/corona10/goimagehash"
+	"gocloud.dev/blob"
 	"image"
 	"log"
-	"gocloud.dev/blob"
 )
 
 func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error {
