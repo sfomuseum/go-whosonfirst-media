@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"encoding/json"
 	"fmt"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
 	"gocloud.dev/blob"
@@ -21,13 +22,18 @@ func main() {
 
 	cb := func(rsp gather.GatherImagesResponse) error {
 
-		log.Println(rsp)
+		enc, err := json.Marshal(rsp)
+
+		if err != nil {
+			return err
+		}
+		
+		fmt.Println(string(enc))
 		return nil
 	}
 
-	for _, path := range flag.Args() {
+	for _, uri := range flag.Args() {
 
-		uri := fmt.Sprintf("file://%s", path)
 		log.Println(uri)
 
 		bucket, err := blob.OpenBucket(ctx, uri)

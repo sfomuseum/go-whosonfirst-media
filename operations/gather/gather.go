@@ -16,11 +16,27 @@ type GatherImagesResponse struct {
 	Path        string
 	Fingerprint string
 	MimeType    string
+	ImageHashes []*common.ImageHashRsp
 }
 
 type GatherImageCallbackFunc func(GatherImagesResponse) error
 
+type GatherImagesOptions struct {
+	Callback   GatherImageCallbackFunc
+	HashImages bool
+}
+
 func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallbackFunc) error {
+
+	opts := &GatherImagesOptions{
+		Callback:   cb,
+		HashImages: true,
+	}
+
+	return GatherImagesWithOptions(ctx, bucket, opts)
+}
+
+func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *GatherImagesOptions) error {
 
 	gather_ch := make(chan GatherImagesResponse)
 
@@ -56,7 +72,7 @@ func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallba
 
 				defer wg.Done()
 
-				err := cb(rsp)
+				err := opts.Callback(rsp)
 
 				if err != nil {
 					log.Printf("Failed to process %s, %s\n", rsp.Path, err)
@@ -135,10 +151,17 @@ func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan GatherIma
 				return err
 			}
 
+			hashes, err := common.ImageHashes(ctx, bucket, im_path)
+
+			if err != nil {
+				return err
+			}
+
 			rsp_ch <- GatherImagesResponse{
 				Path:        im_path,
-				Fingerprint: fp,
 				MimeType:    t,
+				Fingerprint: fp,
+				ImageHashes: hashes,
 			}
 		}
 

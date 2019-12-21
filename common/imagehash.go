@@ -9,12 +9,17 @@ import (
 	"log"
 )
 
-func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error {
+type ImageHashRsp struct {
+	Approach string
+	Hash     string
+}
+
+func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) ([]*ImageHashRsp, error) {
 
 	fh, err := bucket.NewReader(ctx, im_path, nil)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer fh.Close()
@@ -22,7 +27,7 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error
 	im, _, err := image.Decode(fh)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -34,14 +39,9 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error
 		"ext",
 	}
 
-	type HashRsp struct {
-		Approach  string
-		ImageHash *goimagehash.ImageHash
-	}
-
 	done_ch := make(chan bool)
 	err_ch := make(chan error)
-	rsp_ch := make(chan HashRsp)
+	rsp_ch := make(chan *ImageHashRsp)
 
 	for _, a := range approaches {
 
@@ -51,28 +51,21 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error
 				done_ch <- true
 			}()
 
-			h, err := imageHash(ctx, im, a)
+			rsp, err := imageHash(ctx, im, a)
 
 			if err != nil {
 				err_ch <- err
 				return
 			}
 
-			if h != nil {
-
-				rsp := HashRsp{
-					Approach:  a,
-					ImageHash: h,
-				}
-
-				rsp_ch <- rsp
-			}
+			rsp_ch <- rsp
 
 		}(ctx, im, a)
 
 	}
 
 	remaining := len(approaches)
+	hashes := make([]*ImageHashRsp, 0)
 
 	for remaining > 0 {
 
@@ -83,14 +76,14 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) error
 		case err := <-err_ch:
 			log.Println(err)
 		case rsp := <-rsp_ch:
-			log.Println(rsp)
+			hashes = append(hashes, rsp)
 		}
 	}
 
-	return nil
+	return hashes, nil
 }
 
-func imageHash(ctx context.Context, im image.Image, approach string) (*goimagehash.ImageHash, error) {
+func imageHash(ctx context.Context, im image.Image, approach string) (*ImageHashRsp, error) {
 
 	select {
 	case <-ctx.Done():
@@ -99,14 +92,49 @@ func imageHash(ctx context.Context, im image.Image, approach string) (*goimageha
 		// pass
 	}
 
+	var i interface{}
+	var err error
+
 	switch approach {
 	case "avg":
-		return goimagehash.AverageHash(im)
+		i, err = goimagehash.AverageHash(im)
 	case "diff":
-		return goimagehash.DifferenceHash(im)
-		//	case "ext":
-		//		return goimagehash.ExtAverageHash(im, 8, 8)
+		i, err = goimagehash.DifferenceHash(im)
+	case "ext":
+		i, err = goimagehash.ExtAverageHash(im, 8, 8)
 	default:
-		return nil, errors.New("Unknown approach")
+		err = errors.New("Unknown approach")
 	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	switch approach {
+	case "avg", "diff":
+
+		h := i.(*goimagehash.ImageHash)
+
+		rsp := &ImageHashRsp{
+			Approach: approach,
+			Hash:     h.ToString(),
+		}
+
+		return rsp, nil
+
+	case "ext":
+
+		h := i.(*goimagehash.ExtImageHash)
+
+		rsp := &ImageHashRsp{
+			Approach: approach,
+			Hash:     h.ToString(),
+		}
+
+		return rsp, nil
+	default:
+		// pass
+	}
+
+	return nil, errors.New("Impossible condition")
 }
