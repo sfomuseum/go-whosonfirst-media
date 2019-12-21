@@ -47,6 +47,10 @@ github.com/aws/aws-sdk-go/service/s3/internal/arn
 github.com/aws/aws-sdk-go/internal/sdkmath
 github.com/aws/aws-sdk-go/private/protocol/query
 github.com/aws/aws-sdk-go/private/protocol/query/queryutil
+# github.com/corona10/goimagehash v1.0.2
+github.com/corona10/goimagehash
+github.com/corona10/goimagehash/etcs
+github.com/corona10/goimagehash/transforms
 # github.com/emirpasic/gods v1.12.0
 github.com/emirpasic/gods/trees/binaryheap
 github.com/emirpasic/gods/containers
@@ -82,6 +86,8 @@ github.com/mitchellh/go-homedir
 github.com/mmcloughlin/geohash
 # github.com/natefinch/atomic v0.0.0-20150920032501-a62ce929ffcc
 github.com/natefinch/atomic
+# github.com/nfnt/resize v0.0.0-20180221000000-83c6a9932646f83e3267f353373d47347b6036b2
+github.com/nfnt/resize
 # github.com/paulmach/orb v0.1.5
 github.com/paulmach/orb/geojson
 github.com/paulmach/orb/planar

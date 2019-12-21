@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func HashFile(path string) (string, error) {
+func FingerprintFile(path string) (string, error) {
 
 	fh, err := os.Open(path)
 

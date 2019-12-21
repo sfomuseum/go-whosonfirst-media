@@ -1,5 +1,7 @@
 package gather
 
+// TO DO: update to use blob.Bucket...
+
 import (
 	"context"
 	"github.com/sfomuseum/go-whosonfirst-media/common"
@@ -102,7 +104,7 @@ func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosRespo
 			return nil
 		}
 
-		im_hash, err := common.HashFile(im_path)
+		fp, err := common.FingerprintFile(im_path)
 
 		if err != nil {
 			return err
@@ -110,7 +112,7 @@ func CrawlPhotos(ctx context.Context, root string, rsp_ch chan GatherPhotosRespo
 
 		rsp_ch <- GatherPhotosResponse{
 			Path:        im_path,
-			Fingerprint: im_hash,
+			Fingerprint: fp,
 			MimeType:    t,
 		}
 

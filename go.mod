@@ -6,6 +6,7 @@ require (
 	github.com/aaronland/go-image-tools v0.1.3
 	github.com/aaronland/go-string v0.1.1
 	github.com/aws/aws-sdk-go v1.26.3
+	github.com/corona10/goimagehash v1.0.2
 	github.com/go-iiif/go-iiif-uri v0.3.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/tidwall/gjson v1.3.5
