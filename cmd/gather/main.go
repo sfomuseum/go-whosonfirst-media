@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"flag"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
 	"gocloud.dev/blob"
@@ -27,7 +27,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		
+
 		fmt.Println(string(enc))
 		return nil
 	}

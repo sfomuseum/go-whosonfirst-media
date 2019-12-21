@@ -173,6 +173,11 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp gather
 	props["media:mimetype"] = rsp.MimeType
 	props["media:fingerprint"] = rsp.Fingerprint
 
+	for _, h := range rsp.ImageHashes {
+		k := fmt.Sprintf("media:imagehash_%s", h.Approach)
+		props[k] = h.Hash
+	}
+
 	props["mz:is_approximate"] = 1
 
 	/*
