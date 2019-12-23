@@ -15,24 +15,34 @@ type BlobLookerUpper struct {
 	bucket *blob.Bucket
 }
 
-func NewBlobLookerUpper(ctx context.Context, uri string) (LookerUpper, error) {
-
-	bucket, err := blob.OpenBucket(ctx, uri)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return NewBlobLookerUpperWithBucket(ctx, bucket)
+func NewBlobLookerUpper(ctx context.Context) LookerUpper {
+	l := &BlobLookerUpper{}
+	return l
 }
 
-func NewBlobLookerUpperWithBucket(ctx context.Context, bucket *blob.Bucket) (LookerUpper, error) {
+func NewBlobLookerUpperWithBucket(ctx context.Context, bucket *blob.Bucket) LookerUpper {
 
 	l := &BlobLookerUpper{
 		bucket: bucket,
 	}
 
-	return l, nil
+	return l
+}
+
+func (l *BlobLookerUpper) Open(ctx context.Context, uri string) error {
+
+	if l.bucket == nil {
+
+		bucket, err := blob.OpenBucket(ctx, uri)
+
+		if err != nil {
+			return err
+		}
+
+		l.bucket = bucket
+	}
+
+	return nil
 }
 
 func (l *BlobLookerUpper) Append(ctx context.Context, lu *sync.Map, append_funcs ...AppendLookupFunc) error {

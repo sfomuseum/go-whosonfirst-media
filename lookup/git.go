@@ -12,22 +12,24 @@ import (
 
 type GitLookerUpper struct {
 	LookerUpper
-	url string
+	uri string
 }
 
-func NewGitLookerUpper(ctx context.Context, url string) (LookerUpper, error) {
+func NewGitLookerUpper(ctx context.Context) LookerUpper {
 
-	l := &GitLookerUpper{
-		url: url,
-	}
+	l := &GitLookerUpper{}
+	return l
+}
 
-	return l, nil
+func (l *GitLookerUpper) Open(ctx context.Context, uri string) error {
+	l.uri = uri
+	return nil
 }
 
 func (l *GitLookerUpper) Append(ctx context.Context, lu *sync.Map, append_funcs ...AppendLookupFunc) error {
 
 	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-		URL: l.url,
+		URL: l.uri,
 	})
 
 	if err != nil {

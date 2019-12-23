@@ -3,6 +3,7 @@ module github.com/sfomuseum/go-whosonfirst-media
 go 1.12
 
 require (
+	github.com/aaronland/go-cloud-s3blob v0.1.0 // indirect
 	github.com/aaronland/go-image-tools v0.1.3
 	github.com/aaronland/go-string v0.1.1
 	github.com/aws/aws-sdk-go v1.26.3

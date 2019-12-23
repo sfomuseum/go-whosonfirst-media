@@ -24,7 +24,7 @@ func FingerprintAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadCl
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
 
 	if !id_rsp.Exists() {
-		log.Println("MISSING ID")
+		// log.Println("MISSING ID")
 		return nil
 	}
 
@@ -45,7 +45,7 @@ func FingerprintAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadCl
 		return errors.New(msg)
 	}
 
-	// log.Println(id_rsp.Int(), fp_rsp.String())
+	// log.Println(id, fp)
 	return nil
 }
 
@@ -81,5 +81,6 @@ func ImageHashAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadClos
 		return errors.New(msg)
 	}
 
+	// log.Println(id, fp)
 	return nil
 }

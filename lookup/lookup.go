@@ -2,10 +2,15 @@ package lookup
 
 import (
 	"context"
+	_ "log"
 	"sync"
 )
 
+// this will/should probably be updated to use aaronland/go-roster but today it is not hence
+// the clunky constructor-ing (20191223/thisisaaronland)
+
 type LookerUpper interface {
+	Open(context.Context, string) error
 	Append(context.Context, *sync.Map, ...AppendLookupFunc) error
 }
 
