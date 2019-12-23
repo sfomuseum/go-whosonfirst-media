@@ -7,7 +7,7 @@ import (
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
-	_ "log"
+	"log"
 	"sync"
 )
 
@@ -19,6 +19,10 @@ func FingerprintAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadCl
 
 	if err != nil {
 		return err
+	}
+
+	if isDeprecated(body) {
+		return nil
 	}
 
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
@@ -57,6 +61,10 @@ func ImageHashAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadClos
 		return err
 	}
 
+	if isDeprecated(body) {
+		return nil
+	}
+
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
 
 	if !id_rsp.Exists() {
@@ -83,4 +91,16 @@ func ImageHashAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadClos
 
 	// log.Println(id, fp)
 	return nil
+}
+
+func isDeprecated(body []byte) bool {
+
+	deprecated_rsp := gjson.GetBytes(body, "edtf:deprecated")
+
+	if !deprecated_rsp.Exists() {
+		return false
+	}
+
+	log.Println("DEPRECATED", deprecated_rsp.String())
+	return true
 }
