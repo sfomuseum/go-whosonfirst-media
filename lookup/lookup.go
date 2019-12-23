@@ -1,128 +1,51 @@
 package lookup
 
 import (
-	"bytes"
 	"context"
-	"gocloud.dev/blob"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
-	"io"
-	"io/ioutil"
-	"path/filepath"
 	"sync"
 )
 
-// this should be updated to take an arbitrary list of "lookup sources", as in repos, buckets, etc.
-// (20191205/thisisaaronland)
+type LookerUpper interface {
+	Append(context.Context, *sync.Map, ...AppendLookupFunc) error
+}
 
-func NewLookupMapFromRepoAndBucket(ctx context.Context, append_funcs []AppendLookupFunc, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
+func NewLookupMap(ctx context.Context, looker_uppers []LookerUpper, append_funcs []AppendLookupFunc) (*sync.Map, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	lu := new(sync.Map)
 
-	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-		URL: repo_url,
-	})
+	done_ch := make(chan bool)
+	err_ch := make(chan error)
 
-	if err != nil {
-		return nil, err
-	}
+	remaining := len(looker_uppers)
 
-	it, err := r.BlobObjects()
+	for _, l := range looker_uppers {
 
-	if err != nil {
-		return nil, err
-	}
+		go func(l LookerUpper) {
 
-	err = it.ForEach(func(bl *object.Blob) error {
-
-		fh, err := bl.Reader()
-
-		if err != nil {
-			return err
-		}
-
-		defer fh.Close()
-
-		body, err := ioutil.ReadAll(fh)
-
-		if err != nil {
-			return err
-		}
-
-		for _, f := range append_funcs {
-
-			br := bytes.NewReader(body)
-			fh := ioutil.NopCloser(br)
-
-			err := f(ctx, lu, fh)
+			err := l.Append(ctx, lu, append_funcs...)
 
 			if err != nil {
-				return err
+				err_ch <- err
 			}
-		}
 
-		return nil
-	})
+			done_ch <- true
 
-	bucket_iter := bucket.List(nil)
+		}(l)
+	}
 
-	for {
-		obj, err := bucket_iter.Next(ctx)
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
+	for remaining > 0 {
+		select {
+		case <-done_ch:
+			remaining -= 1
+		case err := <-err_ch:
 			return nil, err
+		default:
+			// pass
 		}
-
-		if filepath.Ext(obj.Key) != ".geojson" {
-			continue
-		}
-
-		fh, err := bucket.NewReader(ctx, obj.Key, nil)
-
-		if err != nil {
-			return nil, err
-		}
-
-		defer fh.Close()
-
-		body, err := ioutil.ReadAll(fh)
-
-		if err != nil {
-			return nil, err
-		}
-
-		for _, f := range append_funcs {
-
-			br := bytes.NewReader(body)
-			fh := ioutil.NopCloser(br)
-
-			err := f(ctx, lu, fh)
-
-			if err != nil {
-				return nil, err
-			}
-		}
-
 	}
 
 	return lu, nil
-}
-
-func NewFingerprintMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
-
-	funcs := []AppendLookupFunc{FingerprintAppendLookupFunc}
-	return NewLookupMapFromRepoAndBucket(ctx, funcs, repo_url, bucket)
-}
-
-func NewImageHashMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
-	funcs := []AppendLookupFunc{ImageHashAppendLookupFunc}
-	return NewLookupMapFromRepoAndBucket(ctx, funcs, repo_url, bucket)
 }
