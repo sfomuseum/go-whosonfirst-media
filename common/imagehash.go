@@ -36,7 +36,7 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) ([]*I
 	approaches := []string{
 		"avg",
 		"diff",
-		// don't bother with this for now since it appears to return the same string hash as "avg" : "ext",	
+		// don't bother with this for now since it appears to return the same string hash as "avg" : "ext",
 	}
 
 	done_ch := make(chan bool)

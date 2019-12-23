@@ -26,17 +26,17 @@ func FingerprintAppendLookupFunc(lu *sync.Map, fh io.ReadCloser) error {
 		return err
 	}
 
-	fp_rsp := gjson.GetBytes(body, "properties.media:fingerprint")
-
-	if !fp_rsp.Exists() {
-		log.Println("MISSING FINGERPRINT")
-		return nil
-	}
-
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
 
 	if !id_rsp.Exists() {
 		log.Println("MISSING ID")
+		return nil
+	}
+
+	fp_rsp := gjson.GetBytes(body, "properties.media:fingerprint")
+
+	if !fp_rsp.Exists() {
+		// log.Println("MISSING FINGERPRINT")
 		return nil
 	}
 
@@ -47,6 +47,44 @@ func FingerprintAppendLookupFunc(lu *sync.Map, fh io.ReadCloser) error {
 
 	if exists {
 		msg := fmt.Sprintf("Existing fingerprint key for %s", fp)
+		return errors.New(msg)
+	}
+
+	// log.Println(id_rsp.Int(), fp_rsp.String())
+	return nil
+}
+
+func ImageHashAppendLookupFunc(lu *sync.Map, fh io.ReadCloser) error {
+
+	body, err := ioutil.ReadAll(fh)
+
+	if err != nil {
+		return err
+	}
+
+	id_rsp := gjson.GetBytes(body, "properties.wof:id")
+
+	if !id_rsp.Exists() {
+		log.Println("MISSING ID")
+		return nil
+	}
+
+	fp_rsp := gjson.GetBytes(body, "properties.media:imagehash_avg")
+
+	if !fp_rsp.Exists() {
+		// log.Println("MISSING IMAGE HASH", id_rsp.Int())
+		return nil
+	}
+
+	fp := fp_rsp.String()
+	id := id_rsp.Int()
+
+	// log.Println("HASH", id, fp)
+
+	_, exists := lu.LoadOrStore(fp, id)
+
+	if exists {
+		msg := fmt.Sprintf("Existing image hash key for %s", fp)
 		return errors.New(msg)
 	}
 
@@ -120,6 +158,9 @@ func NewLookupMapFromRepoAndBucket(ctx context.Context, append_func AppendLookup
 }
 
 func NewFingerprintMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
-
 	return NewLookupMapFromRepoAndBucket(ctx, FingerprintAppendLookupFunc, repo_url, bucket)
+}
+
+func NewImageHashMapFromRepoAndBucket(ctx context.Context, repo_url string, bucket *blob.Bucket) (*sync.Map, error) {
+	return NewLookupMapFromRepoAndBucket(ctx, ImageHashAppendLookupFunc, repo_url, bucket)
 }
