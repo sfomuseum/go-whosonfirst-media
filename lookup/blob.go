@@ -6,6 +6,7 @@ import (
 	"gocloud.dev/blob"
 	"io"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"sync"
 )
@@ -86,7 +87,7 @@ func (l *BlobLookerUpper) Append(ctx context.Context, lu *sync.Map, append_funcs
 			err := f(ctx, lu, fh)
 
 			if err != nil {
-				return err
+				log.Printf("BLOB %s: %s\n", obj.Key, err)
 			}
 		}
 

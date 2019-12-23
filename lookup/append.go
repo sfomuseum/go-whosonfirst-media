@@ -7,7 +7,7 @@ import (
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
-	"log"
+	_ "log"
 	"sync"
 )
 
@@ -38,10 +38,10 @@ func FingerprintAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadCl
 	fp := fp_rsp.String()
 	id := id_rsp.Int()
 
-	_, exists := lu.LoadOrStore(fp, id)
+	has_id, exists := lu.LoadOrStore(fp, id)
 
-	if exists {
-		msg := fmt.Sprintf("Existing fingerprint key for %s", fp)
+	if exists && id != has_id.(int64) {
+		msg := fmt.Sprintf("Existing fingerprint key for %s (%d). Has ID: %d", fp, id, has_id.(int64))
 		return errors.New(msg)
 	}
 
@@ -60,7 +60,7 @@ func ImageHashAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadClos
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
 
 	if !id_rsp.Exists() {
-		log.Println("MISSING ID")
+		// log.Println("MISSING ID")
 		return nil
 	}
 
@@ -74,10 +74,10 @@ func ImageHashAppendLookupFunc(ctx context.Context, lu *sync.Map, fh io.ReadClos
 	fp := fp_rsp.String()
 	id := id_rsp.Int()
 
-	_, exists := lu.LoadOrStore(fp, id)
+	has_id, exists := lu.LoadOrStore(fp, id)
 
-	if exists {
-		msg := fmt.Sprintf("Existing image hash key for %s", fp)
+	if exists && id != has_id.(int64) {
+		msg := fmt.Sprintf("Existing image hash key for %s (%d). Has ID: %d", fp, id, has_id.(int64))
 		return errors.New(msg)
 	}
 

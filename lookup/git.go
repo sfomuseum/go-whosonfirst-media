@@ -7,6 +7,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"io/ioutil"
+	"log"
 	"sync"
 )
 
@@ -66,12 +67,13 @@ func (l *GitLookerUpper) Append(ctx context.Context, lu *sync.Map, append_funcs 
 			err := f(ctx, lu, fh)
 
 			if err != nil {
-				return err
+				log.Printf("GIT %s: %s\n", bl.Hash, err)
+				// return err
 			}
 		}
 
 		return nil
 	})
 
-	return nil
+	return err
 }
