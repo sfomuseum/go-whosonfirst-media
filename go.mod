@@ -21,5 +21,5 @@ require (
 	github.com/whosonfirst/go-whosonfirst-uri v0.1.0
 	github.com/whosonfirst/go-writer v0.0.2
 	gocloud.dev v0.18.0
-	gopkg.in/src-d/go-git.v4 v4.13.1
+	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 )
