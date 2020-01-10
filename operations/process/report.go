@@ -259,6 +259,15 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	// END OF sudo wrap me in a function or something
 
+	if p.Callback != nil {
+
+		err := p.Callback(ctx, process_report, old_feature, new_feature)
+
+		if err != nil {
+			return err
+		}
+	}
+	
 	if p.Prune {
 
 		wg := new(sync.WaitGroup)
