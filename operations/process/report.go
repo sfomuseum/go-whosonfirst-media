@@ -53,6 +53,8 @@ type IIIFProcessReportURIs map[string]string
 
 type URITemplateFunc func([]byte) ([]byte, error)
 
+type ProcessReportCallback func(context.Context, *IIIFProcessReport, []byte, []byte) error
+
 type ReportProcessor struct {
 	Reports         *blob.Bucket
 	Pending         *blob.Bucket
@@ -60,6 +62,7 @@ type ReportProcessor struct {
 	Exporter        wof_exporter.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
+	Callback ProcessReportCallback
 }
 
 func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string) error {
@@ -211,21 +214,21 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return err
 	}
 
-	feature_body := f.Bytes()
+	old_feature := f.Bytes()
 
-	feature_body, err = p.appendReport(feature_body, process_report)
-
-	if err != nil {
-		return err
-	}
-
-	feature_body, err = p.Exporter.Export(feature_body)
+	new_feature, err := p.appendReport(old_feature, process_report)
 
 	if err != nil {
 		return err
 	}
 
-	repo_rsp := gjson.GetBytes(feature_body, "properties.wof:repo")
+	new_feature, err = p.Exporter.Export(new_feature)
+
+	if err != nil {
+		return err
+	}
+
+	repo_rsp := gjson.GetBytes(new_feature, "properties.wof:repo")
 
 	if !repo_rsp.Exists() {
 		return errors.New("Missing properties.wof:repo")
@@ -245,7 +248,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return err
 	}
 
-	feature_reader := bytes.NewReader(feature_body)
+	feature_reader := bytes.NewReader(new_feature)
 	feature_readcloser := ioutil.NopCloser(feature_reader)
 
 	err = wr.Write(ctx, wof_path, feature_readcloser)
