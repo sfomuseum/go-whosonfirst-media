@@ -20,7 +20,7 @@ func main() {
 
 	ctx := context.Background()
 
-	cb := func(rsp gather.GatherImagesResponse) error {
+	cb := func(rsp *gather.GatherImagesResponse) error {
 
 		enc, err := json.Marshal(rsp)
 

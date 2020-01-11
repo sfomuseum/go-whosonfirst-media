@@ -62,7 +62,7 @@ type ReportProcessor struct {
 	Exporter        wof_exporter.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
-	Callback ProcessReportCallback
+	Callback        ProcessReportCallback
 }
 
 func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string) error {
@@ -267,7 +267,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 			return err
 		}
 	}
-	
+
 	if p.Prune {
 
 		wg := new(sync.WaitGroup)

@@ -19,7 +19,7 @@ type GatherImagesResponse struct {
 	ImageHashes []*common.ImageHashRsp
 }
 
-type GatherImageCallbackFunc func(GatherImagesResponse) error
+type GatherImageCallbackFunc func(*GatherImagesResponse) error
 
 type GatherImagesOptions struct {
 	Callback   GatherImageCallbackFunc
@@ -38,7 +38,7 @@ func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallba
 
 func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *GatherImagesOptions) error {
 
-	gather_ch := make(chan GatherImagesResponse)
+	gather_ch := make(chan *GatherImagesResponse)
 
 	done_ch := make(chan bool)
 	err_ch := make(chan error)
@@ -68,7 +68,7 @@ func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *Gat
 
 			wg.Add(1)
 
-			go func(rsp GatherImagesResponse) {
+			go func(rsp *GatherImagesResponse) {
 
 				defer wg.Done()
 
@@ -91,7 +91,7 @@ func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *Gat
 	return nil
 }
 
-func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan GatherImagesResponse) error {
+func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan *GatherImagesResponse) error {
 
 	var list func(context.Context, *blob.Bucket, string) error
 
@@ -132,41 +132,57 @@ func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan GatherIma
 				continue
 			}
 
-			im_path := obj.Key
-			ext := filepath.Ext(im_path)
-
-			t := mime.TypeByExtension(ext)
-
-			if t == "" {
-				continue
-			}
-
-			if !strings.HasPrefix(t, "image/") {
-				continue
-			}
-
-			fp, err := common.FingerprintFile(ctx, bucket, im_path)
+			rsp, err := GatherImageResponseWithPath(ctx, bucket, obj.Key)
 
 			if err != nil {
 				return err
 			}
 
-			hashes, err := common.ImageHashes(ctx, bucket, im_path)
-
-			if err != nil {
-				return err
+			if rsp == nil {
+				continue
 			}
 
-			rsp_ch <- GatherImagesResponse{
-				Path:        im_path,
-				MimeType:    t,
-				Fingerprint: fp,
-				ImageHashes: hashes,
-			}
+			rsp_ch <- rsp
 		}
 
 		return nil
 	}
 
 	return list(ctx, bucket, "")
+}
+
+func GatherImageResponseWithPath(ctx context.Context, bucket *blob.Bucket, path string) (*GatherImagesResponse, error) {
+
+	ext := filepath.Ext(path)
+
+	t := mime.TypeByExtension(ext)
+
+	if t == "" {
+		return nil, nil
+	}
+
+	if !strings.HasPrefix(t, "image/") {
+		return nil, nil
+	}
+
+	fp, err := common.FingerprintFile(ctx, bucket, path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	hashes, err := common.ImageHashes(ctx, bucket, path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rsp := &GatherImagesResponse{
+		Path:        path,
+		MimeType:    t,
+		Fingerprint: fp,
+		ImageHashes: hashes,
+	}
+
+	return rsp, nil
 }
