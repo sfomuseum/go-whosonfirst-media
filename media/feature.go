@@ -47,7 +47,7 @@ type NewMediaFeatureOptions struct {
 	CustomProperties map[string]interface{}
 }
 
-func NewMediaFeature(ctx context.Context, rsp gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
+func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
 
 	pr, err := id.NewProvider(ctx)
 
@@ -58,7 +58,7 @@ func NewMediaFeature(ctx context.Context, rsp gather.GatherImagesResponse, depic
 	return NewMediaFeatureWithProvider(ctx, pr, rsp, depicts, opts)
 }
 
-func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
+func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
 
 	if opts.Repo == "" {
 		return nil, errors.New("Missing wof:repo")
