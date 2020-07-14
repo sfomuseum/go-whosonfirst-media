@@ -9,51 +9,57 @@ github.com/aaronland/go-image-tools/imaging
 github.com/aaronland/go-image-tools/util
 # github.com/aaronland/go-pool v0.0.0-20191128211702-88306299c758
 github.com/aaronland/go-pool
-# github.com/aaronland/go-roster v0.0.1
+# github.com/aaronland/go-roster v0.0.2
 github.com/aaronland/go-roster
-# github.com/aaronland/go-string v0.1.1
-github.com/aaronland/go-string/random
+# github.com/aaronland/go-string v0.1.2
 github.com/aaronland/go-string/dsn
+github.com/aaronland/go-string/random
 # github.com/aaronland/go-uid v0.0.2
 github.com/aaronland/go-uid
 # github.com/aaronland/go-uid-artisanal v0.0.0-20191128230022-67bc446aa49d
 github.com/aaronland/go-uid-artisanal
-# github.com/aws/aws-sdk-go v1.26.3
+# github.com/aws/aws-sdk-go v1.33.5
 github.com/aws/aws-sdk-go/aws
-github.com/aws/aws-sdk-go/service/s3/s3manager
+github.com/aws/aws-sdk-go/aws/arn
 github.com/aws/aws-sdk-go/aws/awserr
-github.com/aws/aws-sdk-go/aws/credentials
-github.com/aws/aws-sdk-go/aws/endpoints
-github.com/aws/aws-sdk-go/internal/sdkio
 github.com/aws/aws-sdk-go/aws/awsutil
 github.com/aws/aws-sdk-go/aws/client
-github.com/aws/aws-sdk-go/aws/request
-github.com/aws/aws-sdk-go/service/s3
-github.com/aws/aws-sdk-go/service/s3/s3iface
-github.com/aws/aws-sdk-go/internal/ini
-github.com/aws/aws-sdk-go/internal/shareddefaults
 github.com/aws/aws-sdk-go/aws/client/metadata
-github.com/aws/aws-sdk-go/internal/sdkrand
-github.com/aws/aws-sdk-go/aws/arn
+github.com/aws/aws-sdk-go/aws/credentials
+github.com/aws/aws-sdk-go/aws/endpoints
+github.com/aws/aws-sdk-go/aws/request
 github.com/aws/aws-sdk-go/aws/signer/v4
+github.com/aws/aws-sdk-go/internal/context
+github.com/aws/aws-sdk-go/internal/ini
 github.com/aws/aws-sdk-go/internal/s3err
+github.com/aws/aws-sdk-go/internal/sdkio
+github.com/aws/aws-sdk-go/internal/sdkmath
+github.com/aws/aws-sdk-go/internal/sdkrand
+github.com/aws/aws-sdk-go/internal/shareddefaults
+github.com/aws/aws-sdk-go/internal/strings
+github.com/aws/aws-sdk-go/internal/sync/singleflight
+github.com/aws/aws-sdk-go/private/checksum
 github.com/aws/aws-sdk-go/private/protocol
 github.com/aws/aws-sdk-go/private/protocol/eventstream
 github.com/aws/aws-sdk-go/private/protocol/eventstream/eventstreamapi
+github.com/aws/aws-sdk-go/private/protocol/query
+github.com/aws/aws-sdk-go/private/protocol/query/queryutil
 github.com/aws/aws-sdk-go/private/protocol/rest
 github.com/aws/aws-sdk-go/private/protocol/restxml
 github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
+github.com/aws/aws-sdk-go/service/s3
 github.com/aws/aws-sdk-go/service/s3/internal/arn
-github.com/aws/aws-sdk-go/internal/sdkmath
-github.com/aws/aws-sdk-go/private/protocol/query
-github.com/aws/aws-sdk-go/private/protocol/query/queryutil
+github.com/aws/aws-sdk-go/service/s3/s3iface
+github.com/aws/aws-sdk-go/service/s3/s3manager
 # github.com/corona10/goimagehash v1.0.2
 github.com/corona10/goimagehash
 github.com/corona10/goimagehash/etcs
 github.com/corona10/goimagehash/transforms
-# github.com/go-iiif/go-iiif-uri v0.3.0
+# github.com/go-iiif/go-iiif-uri v0.4.2
 github.com/go-iiif/go-iiif-uri
-# github.com/golang/protobuf v1.3.1
+# github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
+github.com/golang/groupcache/lru
+# github.com/golang/protobuf v1.4.2
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
@@ -65,9 +71,7 @@ github.com/googleapis/gax-go
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v0.0.0-20171204182908-b7773ae21874
 github.com/hashicorp/go-multierror
-# github.com/hashicorp/golang-lru v0.5.1
-github.com/hashicorp/golang-lru/simplelru
-# github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
+# github.com/jmespath/go-jmespath v0.3.0
 github.com/jmespath/go-jmespath
 # github.com/mmcloughlin/geohash v0.9.0
 github.com/mmcloughlin/geohash
@@ -76,42 +80,42 @@ github.com/natefinch/atomic
 # github.com/nfnt/resize v0.0.0-20180221000000-83c6a9932646f83e3267f353373d47347b6036b2
 github.com/nfnt/resize
 # github.com/paulmach/orb v0.1.5
-github.com/paulmach/orb/geojson
-github.com/paulmach/orb/planar
 github.com/paulmach/orb
+github.com/paulmach/orb/geojson
 github.com/paulmach/orb/internal/length
+github.com/paulmach/orb/planar
 # github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 github.com/rwcarlsen/goexif/exif
 github.com/rwcarlsen/goexif/mknote
 github.com/rwcarlsen/goexif/tiff
 # github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 github.com/skelterjohn/geom
-# github.com/tidwall/gjson v1.3.5
+# github.com/tidwall/gjson v1.6.0
 github.com/tidwall/gjson
 # github.com/tidwall/match v1.0.1
 github.com/tidwall/match
-# github.com/tidwall/pretty v1.0.0
+# github.com/tidwall/pretty v1.0.1
 github.com/tidwall/pretty
-# github.com/tidwall/sjson v1.0.4
+# github.com/tidwall/sjson v1.1.1
 github.com/tidwall/sjson
 # github.com/tomtaylor/go-whosonfirst-format v0.2.0
 github.com/tomtaylor/go-whosonfirst-format
-# github.com/whosonfirst/go-reader v0.0.3
+# github.com/whosonfirst/go-reader v0.2.0
 github.com/whosonfirst/go-reader
-# github.com/whosonfirst/go-whosonfirst-export v0.3.0
-github.com/whosonfirst/go-whosonfirst-export/exporter
+# github.com/whosonfirst/go-whosonfirst-export v0.3.1
 github.com/whosonfirst/go-whosonfirst-export
+github.com/whosonfirst/go-whosonfirst-export/exporter
 github.com/whosonfirst/go-whosonfirst-export/options
 github.com/whosonfirst/go-whosonfirst-export/properties
 # github.com/whosonfirst/go-whosonfirst-flags v0.1.0
 github.com/whosonfirst/go-whosonfirst-flags
 github.com/whosonfirst/go-whosonfirst-flags/existential
-# github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.0
+# github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.3
 github.com/whosonfirst/go-whosonfirst-geojson-v2
 github.com/whosonfirst/go-whosonfirst-geojson-v2/feature
-github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst
 github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry
 github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry
+github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst
 github.com/whosonfirst/go-whosonfirst-geojson-v2/utils
 # github.com/whosonfirst/go-whosonfirst-hash v0.1.0
 github.com/whosonfirst/go-whosonfirst-hash
@@ -119,7 +123,7 @@ github.com/whosonfirst/go-whosonfirst-hash
 github.com/whosonfirst/go-whosonfirst-id
 # github.com/whosonfirst/go-whosonfirst-log v0.1.0
 github.com/whosonfirst/go-whosonfirst-log
-# github.com/whosonfirst/go-whosonfirst-placetypes v0.1.0
+# github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
 github.com/whosonfirst/go-whosonfirst-placetypes
 github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
@@ -127,87 +131,126 @@ github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
 # github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 github.com/whosonfirst/go-whosonfirst-spr
-# github.com/whosonfirst/go-whosonfirst-uri v0.1.0
+# github.com/whosonfirst/go-whosonfirst-uri v0.2.0
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-writer v0.0.2
+# github.com/whosonfirst/go-writer v0.2.0
 github.com/whosonfirst/go-writer
-# github.com/whosonfirst/warning v0.1.0
+# github.com/whosonfirst/warning v0.1.1
 github.com/whosonfirst/warning
-# go.opencensus.io v0.22.0
-go.opencensus.io/stats
-go.opencensus.io/stats/view
-go.opencensus.io/tag
-go.opencensus.io/metric/metricdata
-go.opencensus.io/stats/internal
+# go.opencensus.io v0.22.3
+go.opencensus.io
+go.opencensus.io/internal
 go.opencensus.io/internal/tagencoding
+go.opencensus.io/metric/metricdata
 go.opencensus.io/metric/metricproducer
 go.opencensus.io/plugin/ocgrpc
-go.opencensus.io/trace
 go.opencensus.io/resource
-go.opencensus.io/trace/propagation
-go.opencensus.io/internal
+go.opencensus.io/stats
+go.opencensus.io/stats/internal
+go.opencensus.io/stats/view
+go.opencensus.io/tag
+go.opencensus.io/trace
 go.opencensus.io/trace/internal
+go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-go.opencensus.io
-# gocloud.dev v0.18.0
+# gocloud.dev v0.20.0
 gocloud.dev/blob
-gocloud.dev/blob/fileblob
 gocloud.dev/blob/driver
+gocloud.dev/blob/fileblob
 gocloud.dev/gcerrors
+gocloud.dev/internal/escape
 gocloud.dev/internal/gcerr
 gocloud.dev/internal/oc
 gocloud.dev/internal/openurl
-gocloud.dev/internal/escape
 gocloud.dev/internal/retry
-# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
-golang.org/x/net/trace
-golang.org/x/net/internal/timeseries
+# golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
-golang.org/x/net/http/httpguts
 golang.org/x/net/idna
-# golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e
+golang.org/x/net/internal/timeseries
+golang.org/x/net/trace
+# golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-golang.org/x/text/transform
-# golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+# golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# google.golang.org/genproto v0.0.0-20190620144150-6af8c5fc6601
+# google.golang.org/genproto v0.0.0-20200608115520-7c474a2e3482
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.21.1
-google.golang.org/grpc/codes
-google.golang.org/grpc/status
-google.golang.org/grpc/grpclog
-google.golang.org/grpc/metadata
-google.golang.org/grpc/stats
+# google.golang.org/grpc v1.29.1
 google.golang.org/grpc
+google.golang.org/grpc/attributes
+google.golang.org/grpc/backoff
 google.golang.org/grpc/balancer
+google.golang.org/grpc/balancer/base
 google.golang.org/grpc/balancer/roundrobin
+google.golang.org/grpc/binarylog/grpc_binarylog_v1
+google.golang.org/grpc/codes
 google.golang.org/grpc/connectivity
 google.golang.org/grpc/credentials
+google.golang.org/grpc/credentials/internal
 google.golang.org/grpc/encoding
 google.golang.org/grpc/encoding/proto
+google.golang.org/grpc/grpclog
 google.golang.org/grpc/internal
 google.golang.org/grpc/internal/backoff
 google.golang.org/grpc/internal/balancerload
 google.golang.org/grpc/internal/binarylog
+google.golang.org/grpc/internal/buffer
 google.golang.org/grpc/internal/channelz
 google.golang.org/grpc/internal/envconfig
+google.golang.org/grpc/internal/grpclog
 google.golang.org/grpc/internal/grpcrand
 google.golang.org/grpc/internal/grpcsync
+google.golang.org/grpc/internal/grpcutil
+google.golang.org/grpc/internal/resolver/dns
+google.golang.org/grpc/internal/resolver/passthrough
+google.golang.org/grpc/internal/status
+google.golang.org/grpc/internal/syscall
 google.golang.org/grpc/internal/transport
 google.golang.org/grpc/keepalive
+google.golang.org/grpc/metadata
 google.golang.org/grpc/naming
 google.golang.org/grpc/peer
 google.golang.org/grpc/resolver
-google.golang.org/grpc/resolver/dns
-google.golang.org/grpc/resolver/passthrough
+google.golang.org/grpc/serviceconfig
+google.golang.org/grpc/stats
+google.golang.org/grpc/status
 google.golang.org/grpc/tap
-google.golang.org/grpc/balancer/base
-google.golang.org/grpc/credentials/internal
-google.golang.org/grpc/binarylog/grpc_binarylog_v1
-google.golang.org/grpc/internal/syscall
+# google.golang.org/protobuf v1.24.0
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/fieldnum
+google.golang.org/protobuf/internal/fieldsort
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genname
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/mapsort
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
+google.golang.org/protobuf/types/known/anypb
+google.golang.org/protobuf/types/known/durationpb
+google.golang.org/protobuf/types/known/timestamppb

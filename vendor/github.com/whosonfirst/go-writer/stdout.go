@@ -6,22 +6,24 @@ import (
 	"os"
 )
 
-func init() {
-	wr := NewStdoutWriter()
-	Register("stdout", wr)
-}
-
 type StdoutWriter struct {
 	Writer
 }
 
-func NewStdoutWriter() Writer {
-	wr := StdoutWriter{}
-	return &wr
+func init() {
+
+	ctx := context.Background()
+	err := RegisterWriter(ctx, "stdout", NewStdoutWriter)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
-func (wr *StdoutWriter) Open(ctx context.Context, uri string) error {
-	return nil
+func NewStdoutWriter(ctx context.Context, uri string) (Writer, error) {
+
+	wr := &StdoutWriter{}
+	return wr, nil
 }
 
 func (wr *StdoutWriter) Write(ctx context.Context, uri string, fh io.ReadCloser) error {

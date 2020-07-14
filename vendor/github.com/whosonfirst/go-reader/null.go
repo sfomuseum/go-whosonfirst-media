@@ -7,23 +7,24 @@ import (
 	"io/ioutil"
 )
 
-func init() {
-	r := NewNullReader()
-	Register("null", r)
-}
-
 type NullReader struct {
 	Reader
 }
 
-func NewNullReader() Reader {
+func init() {
 
-	r := NullReader{}
-	return &r
+	ctx := context.Background()
+	err := RegisterReader(ctx, "null", NewNullReader)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
-func (r *NullReader) Open(ctx context.Context, uri string) error {
-	return nil
+func NewNullReader(ctx context.Context, uri string) (Reader, error) {
+
+	r := &NullReader{}
+	return r, nil
 }
 
 func (r *NullReader) Read(ctx context.Context, uri string) (io.ReadCloser, error) {

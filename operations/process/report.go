@@ -58,7 +58,7 @@ type ProcessReportCallback func(context.Context, *IIIFProcessReport, []byte, []b
 type ReportProcessor struct {
 	Reports         *blob.Bucket
 	Pending         *blob.Bucket
-	DataURI         string
+	WriterURI         string
 	Exporter        wof_exporter.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
@@ -236,13 +236,13 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	repo := repo_rsp.String()
 
-	data_uri := p.DataURI
+	writer_uri := p.WriterURI
 
-	if strings.Contains(p.DataURI, "%s") {
-		data_uri = fmt.Sprintf(p.DataURI, repo)
+	if strings.Contains(p.WriterURI, "%s") {
+		writer_uri = fmt.Sprintf(p.WriterURI, repo)
 	}
 
-	wr, err := wof_writer.NewWriter(ctx, data_uri)
+	wr, err := wof_writer.NewWriter(ctx, writer_uri)
 
 	if err != nil {
 		return err
