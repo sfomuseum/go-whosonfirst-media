@@ -4,6 +4,7 @@ package clone
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"gocloud.dev/blob"
 	"io"
@@ -153,27 +154,34 @@ func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
 		return target_path, err
 	}
 
-	feature_path := fmt.Sprintf("%d.geojson", opts.ID)
-	feature_fh := opts.Feature
+	if opts.Feature != nil {
 
-	feature_wr, err := opts.Target.NewWriter(ctx, feature_path, nil)
-
-	if err != nil {
-		return feature_path, err
+		if opts.ID == 0 {
+			return "", errors.New("Missing feature ID")
+		}
+		
+		feature_path := fmt.Sprintf("%d.geojson", opts.ID)
+		feature_fh := opts.Feature
+		
+		feature_wr, err := opts.Target.NewWriter(ctx, feature_path, nil)
+		
+		if err != nil {
+			return feature_path, err
+		}
+		
+		_, err = io.Copy(feature_wr, feature_fh)
+		
+		if err != nil {
+			opts.Target.Delete(ctx, feature_path)
+			return feature_path, err
+		}
+		
+		err = feature_wr.Close()
+		
+		if err != nil {
+			return feature_path, err
+		}
 	}
-
-	_, err = io.Copy(feature_wr, feature_fh)
-
-	if err != nil {
-		opts.Target.Delete(ctx, feature_path)
-		return feature_path, err
-	}
-
-	err = feature_wr.Close()
-
-	if err != nil {
-		return feature_path, err
-	}
-
+	
 	return target_path, nil
 }
