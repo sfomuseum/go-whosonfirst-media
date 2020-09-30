@@ -18,20 +18,23 @@ github.com/aaronland/go-string/random
 github.com/aaronland/go-uid
 # github.com/aaronland/go-uid-artisanal v0.0.0-20191128230022-67bc446aa49d
 github.com/aaronland/go-uid-artisanal
-# github.com/aws/aws-sdk-go v1.33.5
+# github.com/aws/aws-sdk-go v1.35.0
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/arn
 github.com/aws/aws-sdk-go/aws/awserr
 github.com/aws/aws-sdk-go/aws/awsutil
 github.com/aws/aws-sdk-go/aws/client
 github.com/aws/aws-sdk-go/aws/client/metadata
+github.com/aws/aws-sdk-go/aws/corehandlers
 github.com/aws/aws-sdk-go/aws/credentials
 github.com/aws/aws-sdk-go/aws/endpoints
 github.com/aws/aws-sdk-go/aws/request
 github.com/aws/aws-sdk-go/aws/signer/v4
 github.com/aws/aws-sdk-go/internal/context
 github.com/aws/aws-sdk-go/internal/ini
-github.com/aws/aws-sdk-go/internal/s3err
+github.com/aws/aws-sdk-go/internal/s3shared
+github.com/aws/aws-sdk-go/internal/s3shared/arn
+github.com/aws/aws-sdk-go/internal/s3shared/s3err
 github.com/aws/aws-sdk-go/internal/sdkio
 github.com/aws/aws-sdk-go/internal/sdkmath
 github.com/aws/aws-sdk-go/internal/sdkrand
@@ -48,7 +51,6 @@ github.com/aws/aws-sdk-go/private/protocol/rest
 github.com/aws/aws-sdk-go/private/protocol/restxml
 github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
 github.com/aws/aws-sdk-go/service/s3
-github.com/aws/aws-sdk-go/service/s3/internal/arn
 github.com/aws/aws-sdk-go/service/s3/s3iface
 github.com/aws/aws-sdk-go/service/s3/s3manager
 # github.com/corona10/goimagehash v1.0.2
@@ -71,7 +73,7 @@ github.com/googleapis/gax-go
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v0.0.0-20171204182908-b7773ae21874
 github.com/hashicorp/go-multierror
-# github.com/jmespath/go-jmespath v0.3.0
+# github.com/jmespath/go-jmespath v0.4.0
 github.com/jmespath/go-jmespath
 # github.com/mmcloughlin/geohash v0.9.0
 github.com/mmcloughlin/geohash
@@ -90,19 +92,17 @@ github.com/rwcarlsen/goexif/mknote
 github.com/rwcarlsen/goexif/tiff
 # github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 github.com/skelterjohn/geom
-# github.com/tidwall/gjson v1.6.0
+# github.com/tidwall/gjson v1.6.1
 github.com/tidwall/gjson
 # github.com/tidwall/match v1.0.1
 github.com/tidwall/match
-# github.com/tidwall/pretty v1.0.1
+# github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
-# github.com/tidwall/sjson v1.1.1
+# github.com/tidwall/sjson v1.1.2
 github.com/tidwall/sjson
-# github.com/tomtaylor/go-whosonfirst-format v0.2.0
-github.com/tomtaylor/go-whosonfirst-format
 # github.com/whosonfirst/go-reader v0.2.0
 github.com/whosonfirst/go-reader
-# github.com/whosonfirst/go-whosonfirst-export v0.3.1
+# github.com/whosonfirst/go-whosonfirst-export v0.3.3
 github.com/whosonfirst/go-whosonfirst-export
 github.com/whosonfirst/go-whosonfirst-export/exporter
 github.com/whosonfirst/go-whosonfirst-export/options
@@ -110,6 +110,8 @@ github.com/whosonfirst/go-whosonfirst-export/properties
 # github.com/whosonfirst/go-whosonfirst-flags v0.1.0
 github.com/whosonfirst/go-whosonfirst-flags
 github.com/whosonfirst/go-whosonfirst-flags/existential
+# github.com/whosonfirst/go-whosonfirst-format v0.3.0
+github.com/whosonfirst/go-whosonfirst-format
 # github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.3
 github.com/whosonfirst/go-whosonfirst-geojson-v2
 github.com/whosonfirst/go-whosonfirst-geojson-v2/feature
