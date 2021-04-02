@@ -8,7 +8,7 @@ import (
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/exporter"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"gocloud.dev/blob"
 	"io"
@@ -22,7 +22,7 @@ import (
 type Removal struct {
 	DataSource  string
 	MediaSource string
-	Exporter    exporter.Exporter
+	Exporter    export.Exporter
 	Dryrun      bool
 	mu          *sync.RWMutex
 }
@@ -32,7 +32,7 @@ type RemovalRequest struct {
 	Repo string `json:"repo"`
 }
 
-func NewRemoval(ex exporter.Exporter) (*Removal, error) {
+func NewRemoval(ex export.Exporter) (*Removal, error) {
 
 	mu := new(sync.RWMutex)
 
@@ -170,7 +170,7 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 		return err
 	}
 
-	body, err = c.Exporter.Export(body)
+	body, err = c.Exporter.Export(ctx, body)
 
 	if err != nil {
 		return err

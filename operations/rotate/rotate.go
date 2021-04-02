@@ -14,7 +14,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/exporter"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"gocloud.dev/blob"
 	"image"
@@ -28,7 +28,7 @@ import (
 type Rotation struct {
 	DataSource  string
 	MediaSource string
-	Exporter    exporter.Exporter
+	Exporter    export.Exporter
 	Dryrun      bool
 }
 
@@ -49,7 +49,7 @@ type RotateResponse struct {
 	NewPath   string
 }
 
-func NewRotation(ex exporter.Exporter) (*Rotation, error) {
+func NewRotation(ex export.Exporter) (*Rotation, error) {
 
 	r := &Rotation{
 		DataSource:  "",
@@ -281,7 +281,7 @@ func (r *Rotation) rotate(ctx context.Context, req *RotateRequest) error {
 		}
 	}
 
-	body, err = r.Exporter.Export(body)
+	body, err = r.Exporter.Export(ctx, body)
 
 	if err != nil {
 		scrub(new_paths)

@@ -10,7 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
-	wof_exporter "github.com/whosonfirst/go-whosonfirst-export/exporter"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	wof_uri "github.com/whosonfirst/go-whosonfirst-uri"
 	wof_writer "github.com/whosonfirst/go-writer"
@@ -60,7 +60,7 @@ type ReportProcessor struct {
 	Reports         *blob.Bucket
 	Pending         *blob.Bucket
 	WriterURI       string
-	Exporter        wof_exporter.Exporter
+	Exporter        export.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
 	Callback        ProcessReportCallback
@@ -223,7 +223,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return err
 	}
 
-	new_feature, err = p.Exporter.Export(new_feature)
+	new_feature, err = p.Exporter.Export(ctx, new_feature)
 
 	if err != nil {
 		return err

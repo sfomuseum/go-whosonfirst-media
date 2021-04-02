@@ -11,8 +11,9 @@ require (
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/tidwall/gjson v1.7.4
 	github.com/tidwall/sjson v1.1.6
+	github.com/whosonfirst/go-ioutil v0.0.1
 	github.com/whosonfirst/go-reader v0.5.0
-	github.com/whosonfirst/go-whosonfirst-export v0.4.0
+	github.com/whosonfirst/go-whosonfirst-export/v2 v2.2.0
 	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.16.3
 	github.com/whosonfirst/go-whosonfirst-id v0.0.2
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0
