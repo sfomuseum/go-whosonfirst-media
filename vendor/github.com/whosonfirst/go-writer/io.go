@@ -28,20 +28,23 @@ func NewIOWriter(ctx context.Context, uri string) (Writer, error) {
 	return wr, nil
 }
 
-func (wr *IOWriter) Write(ctx context.Context, uri string, fh io.ReadCloser) error {
+func (wr *IOWriter) Write(ctx context.Context, uri string, fh io.ReadSeeker) (int64, error) {
 
 	target, err := GetIOWriterFromContext(ctx)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	_, err = io.Copy(target, fh)
-	return err
+	return io.Copy(target, fh)
 }
 
-func (wr *IOWriter) URI(uri string) string {
+func (wr *IOWriter) WriterURI(ctx context.Context, uri string) string {
 	return uri
+}
+
+func (wr *IOWriter) Close(ctx context.Context) error {
+	return nil
 }
 
 func SetIOWriterWithContext(ctx context.Context, wr io.Writer) (context.Context, error) {

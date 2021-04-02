@@ -1,3 +1,27 @@
 # go-whosonfirst-writer
 
-Work in progress. This will replace [go-whosonfirst-readwrite](https://github.com/whosonfirst/go-whosonfirst-readwrite).
+## Important
+
+Work in progress. Documentation to follow
+
+## Interfaces
+
+### WriterInitializationFunc
+
+```
+type WriterInitializationFunc func(ctx context.Context, uri string) (Writer, error)
+```
+
+### Writer
+
+```
+type Writer interface {
+	Write(context.Context, string, io.ReadSeeker) (int64, error)
+	Close() error
+	WriterURI(string) string
+}
+```
+
+## See also
+
+* https://github.com/whosonfirst/go-reader

@@ -3,7 +3,6 @@ package writer
 import (
 	"context"
 	"io"
-	"io/ioutil"
 )
 
 type NullWriter struct {
@@ -26,11 +25,14 @@ func NewNullWriter(ctx context.Context, uri string) (Writer, error) {
 	return wr, nil
 }
 
-func (wr *NullWriter) Write(ctx context.Context, uri string, fh io.ReadCloser) error {
-	_, err := io.Copy(ioutil.Discard, fh)
-	return err
+func (wr *NullWriter) Write(ctx context.Context, uri string, fh io.ReadSeeker) (int64, error) {
+	return io.Copy(io.Discard, fh)
 }
 
-func (wr *NullWriter) URI(uri string) string {
+func (wr *NullWriter) WriterURI(ctx context.Context, uri string) string {
 	return uri
+}
+
+func (wr *NullWriter) Close(ctx context.Context) error {
+	return nil
 }
