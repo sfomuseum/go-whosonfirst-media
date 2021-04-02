@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/exporter"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"gocloud.dev/blob"
 	"io"
-	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
@@ -164,7 +164,7 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 		return err
 	}
 
-	body, err := ioutil.ReadAll(new)
+	body, err := io.ReadAll(new)
 
 	if err != nil {
 		return err
@@ -177,12 +177,16 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 	}
 
 	br := bytes.NewReader(body)
-	fh := ioutil.NopCloser(br)
+	fh, err := ioutil.NewReadSeekCloser(br)
+
+	if err != nil {
+		return err
+	}
 
 	if c.Dryrun {
 		log.Printf("[dryrun] write '%s' here\n", rel_path)
 	} else {
-		err = wr.Write(ctx, rel_path, fh)
+		_, err = wr.Write(ctx, rel_path, fh)
 
 		if err != nil {
 			return err
@@ -246,7 +250,7 @@ func (c *Removal) deleteMediaFiles(ctx context.Context, req *RemovalRequest) err
 
 func (c *Removal) deprecateFeature(fh io.ReadCloser) (io.ReadCloser, error) {
 
-	body, err := ioutil.ReadAll(fh)
+	body, err := io.ReadAll(fh)
 
 	if err != nil {
 		return nil, err
@@ -285,7 +289,6 @@ func (c *Removal) deprecateFeature(fh io.ReadCloser) (io.ReadCloser, error) {
 	}
 
 	r := bytes.NewReader(body)
-	out := ioutil.NopCloser(r)
 
-	return out, nil
+	return ioutil.NewReadSeekCloser(r)
 }

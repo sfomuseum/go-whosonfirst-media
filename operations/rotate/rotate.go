@@ -13,12 +13,13 @@ import (
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/exporter"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"gocloud.dev/blob"
 	"image"
 	"image/color"
-	"io/ioutil"
+	"io"
 	"log"
 	"path/filepath"
 	"strings"
@@ -133,7 +134,7 @@ func (r *Rotation) rotate(ctx context.Context, req *RotateRequest) error {
 
 	defer fh.Close()
 
-	body, err := ioutil.ReadAll(fh)
+	body, err := io.ReadAll(fh)
 
 	if err != nil {
 		return err
@@ -288,12 +289,17 @@ func (r *Rotation) rotate(ctx context.Context, req *RotateRequest) error {
 	}
 
 	br := bytes.NewReader(body)
-	out := ioutil.NopCloser(br)
+	out, err := ioutil.NewReadSeekCloser(br)
+
+	if err != nil {
+		return err
+	}
 
 	if r.Dryrun {
 		log.Printf("[dryrun] write '%s' here\n", rel_path)
 	} else {
-		err = wr.Write(ctx, rel_path, out)
+
+		_, err = wr.Write(ctx, rel_path, out)
 
 		if err != nil {
 			scrub(new_paths)

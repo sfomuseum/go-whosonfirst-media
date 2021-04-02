@@ -9,12 +9,13 @@ import (
 	iiifuri "github.com/go-iiif/go-iiif-uri"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-ioutil"
 	wof_exporter "github.com/whosonfirst/go-whosonfirst-export/exporter"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	wof_uri "github.com/whosonfirst/go-whosonfirst-uri"
 	wof_writer "github.com/whosonfirst/go-writer"
 	"gocloud.dev/blob"
-	"io/ioutil"
+	"io"
 	"log"
 	"mime"
 	"net/url"
@@ -58,7 +59,7 @@ type ProcessReportCallback func(context.Context, *IIIFProcessReport, []byte, []b
 type ReportProcessor struct {
 	Reports         *blob.Bucket
 	Pending         *blob.Bucket
-	WriterURI         string
+	WriterURI       string
 	Exporter        wof_exporter.Exporter
 	Prune           bool
 	URITemplateFunc URITemplateFunc
@@ -141,7 +142,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	defer fh.Close()
 
-	body, err := ioutil.ReadAll(fh)
+	body, err := io.ReadAll(fh)
 
 	if err != nil {
 		return err
@@ -249,9 +250,13 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	}
 
 	feature_reader := bytes.NewReader(new_feature)
-	feature_readcloser := ioutil.NopCloser(feature_reader)
+	feature_readcloser, err := ioutil.NewReadSeekCloser(feature_reader)
 
-	err = wr.Write(ctx, wof_path, feature_readcloser)
+	if err != nil {
+		return err
+	}
+
+	_, err = wr.Write(ctx, wof_path, feature_readcloser)
 
 	if err != nil {
 		return err
