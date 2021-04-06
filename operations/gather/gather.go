@@ -91,6 +91,8 @@ func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *Gat
 	return nil
 }
 
+// Iterate through all the items stored in a blob.Bucket instance, generate a GatherImagesResponse for things that are images
+// and dispatch that response to a user-defined channel.
 func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan *GatherImagesResponse) error {
 
 	var list func(context.Context, *blob.Bucket, string) error
