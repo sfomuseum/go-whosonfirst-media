@@ -9,11 +9,16 @@ import (
 	"log"
 )
 
+// ImageHashRsp is a struct representing the results of an image hashing operation.
 type ImageHashRsp struct {
+	// String label describing the image hashing procedure used.
 	Approach string
+	// The hexidecimal hash of an image.
 	Hash     string
 }
 
+// Generate a list of ImageHashRsp instances for a file stored in a blob.Bucket instance
+// using the corona10/goimagehash package.
 func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) ([]*ImageHashRsp, error) {
 
 	fh, err := bucket.NewReader(ctx, im_path, nil)

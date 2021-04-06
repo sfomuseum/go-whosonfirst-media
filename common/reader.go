@@ -9,6 +9,8 @@ import (
 var readers = make(map[string]reader.Reader)
 var readers_mu = new(sync.RWMutex)
 
+// NewReader returns a whosonfirst/go-reader.Reader instance. Instances
+// are cached in memory for repeat lookups.
 func NewReader(ctx context.Context, uri string) (reader.Reader, error) {
 
 	readers_mu.Lock()

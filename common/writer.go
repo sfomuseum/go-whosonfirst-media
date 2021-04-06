@@ -9,6 +9,8 @@ import (
 var writers = make(map[string]writer.Writer)
 var writers_mu = new(sync.RWMutex)
 
+// NewWriter returns a whosonfirst/go-writer.Writer instance. Instances
+// are cached in memory for repeat lookups.
 func NewWriter(ctx context.Context, uri string) (writer.Writer, error) {
 
 	writers_mu.Lock()

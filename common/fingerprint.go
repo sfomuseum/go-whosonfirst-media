@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// Generate a SHA-1 hash of a file stored in a blob.Bucket instance.
 func FingerprintFile(ctx context.Context, bucket *blob.Bucket, path string) (string, error) {
 
 	fh, err := bucket.NewReader(ctx, path, nil)
