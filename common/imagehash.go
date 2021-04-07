@@ -14,7 +14,7 @@ type ImageHashRsp struct {
 	// String label describing the image hashing procedure used.
 	Approach string
 	// The hexidecimal hash of an image.
-	Hash     string
+	Hash string
 }
 
 // Generate a list of ImageHashRsp instances for a file stored in a blob.Bucket instance

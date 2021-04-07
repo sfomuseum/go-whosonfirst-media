@@ -37,16 +37,23 @@ type Feature struct {
 	Geometry   Geometry   `json:"geometry"`
 }
 
+// NewMediaFeatureNameFunc is a function for manipulating an input name in to a final name to be assigned to a feature's wof:name  property.
 type NewMediaFeatureNameFunc func(string) (string, error)
 
+// NewMediaFeatureOptions is a struct containing application-specific options used in the create of new media-related GeoJSON Features.
 type NewMediaFeatureOptions struct {
-	SourceBucket     *blob.Bucket
-	Repo             string
-	NameFunction     NewMediaFeatureNameFunc
+	SourceBucket *blob.Bucket
+	// The name of the repository that this feature will be stored in.
+	Repo string
+	// An optional NewMediaFeatureNameFunc for deriving the final wof:name property assigned to the new feature.
+	NameFunction NewMediaFeatureNameFunc
+	// An optional string label for a WOF placetype. If present it will be used to derive the set of WOF IDs for that placetype and its ancestors, associated with the feature being depicted by the new media feature, to be assigned to the new feature.
 	DepictsPlacetype string
+	// Custom properties to assign to the new Feature
 	CustomProperties map[string]interface{}
 }
 
+// Create a new geojson.Feature instance with media:properties associated with a Feature instance it depicts.
 func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
 
 	pr, err := id.NewProvider(ctx)
@@ -58,6 +65,7 @@ func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depi
 	return NewMediaFeatureWithProvider(ctx, pr, rsp, depicts, opts)
 }
 
+// Create a new geojson.Feature instance with media:properties associated with a Feature instance it depicts, using a custom id.Provider.
 func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
 
 	if opts.Repo == "" {

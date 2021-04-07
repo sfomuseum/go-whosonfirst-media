@@ -1,6 +1,5 @@
+// package clone provides method move an image and it's corresponding feature to a place where it can be processed.
 package clone
-
-// move an image and it's corresponding feature to a place where it can be processed
 
 import (
 	"context"
@@ -11,14 +10,23 @@ import (
 	"path/filepath"
 )
 
+// CloneImageOptions is a struct containing application-specific options
+// and details related to cloning an image.
 type CloneImageOptions struct {
-	Source   *blob.Bucket
-	Target   *blob.Bucket
-	ID       int64  // WOF (or sfomuseum-data-media-* ID)
-	ImageID  int64  // source image ID
-	Filename string // source image filename
-	Force    bool
-	Feature  io.ReadCloser
+	// A blob.Bucket instance where images are read from.
+	Source *blob.Bucket
+	// A blob.Bucket instance where images are written to.
+	Target *blob.Bucket
+	// WOF (or sfomuseum-data-media-* ) ID
+	ID int64
+	// Source FileMaker image ID
+	ImageID int64
+	// Source FileMaker image filename
+	Filename string
+	// Boolean flag to signal that an image should be cloned even if it already exists in the target location.
+	Force bool
+	// The (GeoJSON) Feature record associated with this image.
+	Feature io.ReadCloser
 }
 
 func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
