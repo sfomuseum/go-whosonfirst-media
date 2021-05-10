@@ -4,4 +4,8 @@ Go package for common methods and operations to produce Who's On First (WOF) sty
 
 ## Important
 
-This is work in progress. Documentation to follow.
+This is work in progress. Documentation is incomplete.
+
+## Documentation
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/sfomuseum/go-whosonfirst-media.svg)](https://pkg.go.dev/github.com/sfomuseum/go-whosonfirst-media)
