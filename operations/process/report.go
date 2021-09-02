@@ -160,7 +160,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return errors.New("Report is missing origin_uri. Not sure what to do with it...")
 	}
 
-	uri, err := iiifuri.NewURI(process_report.OriginURI)
+	uri, err := iiifuri.NewURI(ctx, process_report.OriginURI)
 
 	if err != nil {
 		return err
@@ -168,7 +168,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	var wof_id int64
 
-	switch uri.Driver() {
+	switch uri.Scheme() {
 	case "idsecret":
 
 		u, _ := url.Parse(process_report.OriginURI) // we've just parse
