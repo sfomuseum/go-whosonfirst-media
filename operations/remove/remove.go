@@ -1,3 +1,4 @@
+// package remove provides common methods for removing image files.
 package remove
 
 import (
@@ -19,19 +20,28 @@ import (
 	"time"
 )
 
+// type Removal provides a struct for removing media files.
 type Removal struct {
+	// DataSource is a valid gocloud.dev/blob Bucket URI where WOF feature records associated with media files are stored.
 	DataSource  string
+	// MediaSource is a valid gocloud.dev/blob Bucket URI where media files are stored.
 	MediaSource string
+	// A valid whosonfirst/go-whosonfirst-export Exporter for exporting Who's On First feature records.
 	Exporter    export.Exporter
+	// A boolean flag indicating whether to perform a removal in "dry run" mode.
 	Dryrun      bool
 	mu          *sync.RWMutex
 }
 
+// type RemovalRequest provides encapsulating data for removing a given media file.
 type RemovalRequest struct {
+	// A valid Who's On First ID (to remove).
 	Id   int64  `json:"id"`
+	// The data repository where Id is stored.
 	Repo string `json:"repo"`
 }
 
+// NewRemoval return a new Removal instance.
 func NewRemoval(ex export.Exporter) (*Removal, error) {
 
 	mu := new(sync.RWMutex)
@@ -47,6 +57,7 @@ func NewRemoval(ex export.Exporter) (*Removal, error) {
 	return c, nil
 }
 
+// Remove will process one or more RemovalRequest instances (to remove media files)
 func (c *Removal) Remove(ctx context.Context, requests ...*RemovalRequest) error {
 
 	remaining := len(requests)
@@ -289,6 +300,5 @@ func (c *Removal) deprecateFeature(fh io.ReadCloser) (io.ReadCloser, error) {
 	}
 
 	r := bytes.NewReader(body)
-
 	return ioutil.NewReadSeekCloser(r)
 }

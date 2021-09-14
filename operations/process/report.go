@@ -25,47 +25,78 @@ import (
 	"sync"
 )
 
+// type MediaPropertiesSizes defines a struct containing properties about a media file
 type MediaPropertiesSize struct {
+	// The filename extension for the media file.
 	Extension string `json:"extension"`
-	Height    int    `json:"height"`
-	Width     int    `json:"width"`
-	Mimetype  string `json:"mimetype"`
-	Secret    string `json:"secret"`
+	// The pixel height of the media file.
+	Height int `json:"height"`
+	// The pixel width of the media file.
+	Width int `json:"width"`
+	// The mimetype of the media file.
+	Mimetype string `json:"mimetype"`
+	// A secret associated with the media file (typically appended to its URI).
+	Secret string `json:"secret"`
 }
 
+// IIIFProcessReport provides a struct mapping to the reports generate by the go-iiif/go-iiif 'iiif-process' functionality.
+// See also: https://github.com/go-iiif/go-iiif#report-files
 type IIIFProcessReport struct {
-	Dimensions        IIIFProcessReportDimensions `json:"dimensions"`
-	Palette           []IIIFProcessReportPalette  `json:"palette"`
-	URIs              IIIFProcessReportURIs       `json:"uris"`
-	Origin            string                      `json:"origin"`
-	OriginURI         string                      `json:"origin_uri"`
-	OriginFingerprint string                      `json:"origin_fingerprint"`
+	// A data structure containing labels (for image sizes) mapped to their x (width) and y (height) pixel values.
+	Dimensions IIIFProcessReportDimensions `json:"dimensions"`
+	// A data structure containing colour palette information about an image file.
+	Palette []IIIFProcessReportPalette `json:"palette"`
+	// ...
+	URIs IIIFProcessReportURIs `json:"uris"`
+	// ...
+	Origin string `json:"origin"`
+	// ...
+	OriginURI string `json:"origin_uri"`
+	// ...
+	OriginFingerprint string `json:"origin_fingerprint"`
 }
 
+// IIIFProcessReportDimensions provides a data structure containing labels (for image sizes) mapped to their x (width) and y (height) pixel values.
 type IIIFProcessReportDimensions map[string][]int
 
+// IIIFProcessReportPalette provides a data structure containing colour palette information about an image file.
 type IIIFProcessReportPalette struct {
-	Name      string `json:"name"`
-	Hex       string `json:"hex"`
+	// The name (or label) for a colour.
+	Name string `json:"name"`
+	// The (6-character) hexidecimal value for a colour.
+	Hex string `json:"hex"`
+	// The reference (source) for a colour.
 	Reference string `json:"reference"`
 }
 
+// IIIFProcessReportURIs ...
 type IIIFProcessReportURIs map[string]string
 
+// URITemplateFunc ...
 type URITemplateFunc func([]byte) ([]byte, error)
 
+// ProcessReportCallback is a custom function for processing a IIIFProcessReport
 type ProcessReportCallback func(context.Context, *IIIFProcessReport, []byte, []byte) error
 
+// ReportProcessor provides a struct for managing and processing reports (produced by the go-iiif/go-iiif 'iiif-process' functionality).
 type ReportProcessor struct {
-	Reports         *blob.Bucket
-	Pending         *blob.Bucket
-	WriterURI       string
-	Exporter        export.Exporter
-	Prune           bool
+	// A valid gocloud.dev/blob Bucket where reports are stored.
+	Reports *blob.Bucket
+	// A valid gocloud.dev/blob Bucket where pending images are stored.
+	Pending *blob.Bucket
+	// A valid whosonfirst/go-writer Writer for publishing Who's On First feature records
+	WriterURI string
+	// A valid whosonfirst/go-whosonfirst-export Exporter for exporting Who's On First feature records
+	Exporter export.Exporter
+	// A boolean flag indicating whether to remove pending images on completin
+	Prune bool
+	// ...
 	URITemplateFunc URITemplateFunc
-	Callback        ProcessReportCallback
+	// ...
+	Callback ProcessReportCallback
 }
 
+// ProcessReports will process zero or more report URIs
 func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string) error {
 
 	type ReportError struct {
@@ -125,6 +156,7 @@ func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string)
 	return nil
 }
 
+// ProcessReport will process a single report URI.
 func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) error {
 
 	select {
@@ -318,6 +350,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	return nil
 }
 
+// appendReport will append properties from `report` to `body`.
 func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) ([]byte, error) {
 
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")

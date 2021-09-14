@@ -16,11 +16,11 @@ import (
 // type GatherImagesResponse provides a struct containing basic information about a file.
 type GatherImagesResponse struct {
 	// The path to the image file being gathered
-	Path        string
+	Path string
 	// The SHA-1 hash of the file (defined in Path)
 	Fingerprint string
 	// The mimetype of the image file being gathered
-	MimeType    string
+	MimeType string
 	// The set of image hashes for the image file being gathered
 	ImageHashes []*common.ImageHashRsp
 }
@@ -30,8 +30,8 @@ type GatherImageCallbackFunc func(*GatherImagesResponse) error
 
 // type GatherImagesOptions provides configuration options for gathering images
 type GatherImagesOptions struct {
-	// A custom callback function to be applied to each image that is gathered	
-	Callback   GatherImageCallbackFunc
+	// A custom callback function to be applied to each image that is gathered
+	Callback GatherImageCallbackFunc
 	// A boolean flag indicating whether image hashes should be calculated for gathered images
 	HashImages bool
 }
