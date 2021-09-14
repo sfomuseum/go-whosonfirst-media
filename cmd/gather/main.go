@@ -1,3 +1,4 @@
+// The gather tool will gather images from one or more sources and emit JSON-encoded gather.GatherImagesResponse data structures to STDOUT.
 package main
 
 import (
