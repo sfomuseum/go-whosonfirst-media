@@ -22,15 +22,19 @@ import (
 	"time"
 )
 
+// type Coordinates stores a single longitude, latitude coordinate pair.
 type Coordinates []float64
 
+// type Geomerty stores a GeoJSON geometry dictionary.
 type Geometry struct {
 	Type        string      `json:"type"`
 	Coordinates Coordinates `json:"coordinates"`
 }
 
+// type Geomerty stores a GeoJSON properties dictionary.
 type Properties map[string]interface{}
 
+// type Feature provides a GeoJSON struct.
 type Feature struct {
 	Type       string     `json:"type"`
 	Properties Properties `json:"properties"`

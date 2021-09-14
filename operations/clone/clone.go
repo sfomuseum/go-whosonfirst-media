@@ -29,75 +29,8 @@ type CloneImageOptions struct {
 	Feature io.ReadCloser
 }
 
+// CloneImage will copy a file from a source bucket to a target bucket, defined in 'opts'.
 func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
-
-	// DUNNO YET, PUTTING THIS HERE SO IT DOESN'T GET LOST IN THE WEEDS
-	// (20200116/thisisaaronland)
-
-	/*
-
-		// START OF maybe just make this part of the Clone operation
-
-		rsp, err := wof_gather.GatherImageResponseWithPath(ctx, opts.Source, opts.Filename)
-
-		if err != nil {
-			return err
-		}
-
-		wof_fh := opts.Feature
-		body, err := ioutil.ReadAll(wof_fh)
-
-		if err != nil {
-			return err
-		}
-
-		// START OF: common code with any.go (see above)
-
-		body, err = sjson.SetBytes(body, "properties.media:mimetype", rsp.MimeType)
-
-		if err != nil {
-			return err
-		}
-
-		body, err = sjson.SetBytes(body, "properties.media:fingerprint", rsp.Fingerprint)
-
-		if err != nil {
-			return err
-		}
-
-		body, err = sjson.DeleteBytes(body, "properties.media:imagehash_avg")
-
-		if err != nil {
-			return err
-		}
-
-		body, err = sjson.DeleteBytes(body, "properties.media:imagehash_diff")
-
-		if err != nil {
-			return err
-		}
-
-		for _, h := range rsp.ImageHashes {
-
-			k := fmt.Sprintf("properties.media:imagehash_%s", h.Approach)
-
-			body, err = sjson.SetBytes(body, k, h.Hash)
-
-			if err != nil {
-				return err
-			}
-		}
-
-		_, body, err = export.ExportBytes(ctx, body)
-
-		if err != nil {
-			return err
-		}
-
-		br := bytes.NewReader(body)
-		wof_fh = ioutil.NopCloser(br)
-
-	*/
 
 	image_ext := filepath.Ext(opts.Filename)
 
