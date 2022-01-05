@@ -19,7 +19,7 @@ github.com/aaronland/go-string/random
 github.com/aaronland/go-uid
 # github.com/aaronland/go-uid-artisanal v0.0.0-20191128230022-67bc446aa49d
 github.com/aaronland/go-uid-artisanal
-# github.com/aws/aws-sdk-go v1.41.8
+# github.com/aws/aws-sdk-go v1.42.28
 ## explicit
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/arn
@@ -113,20 +113,20 @@ github.com/sfomuseum/go-edtf/re
 github.com/sfomuseum/go-edtf/tests
 # github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 github.com/skelterjohn/geom
-# github.com/tidwall/gjson v1.10.0
+# github.com/tidwall/gjson v1.12.1
 ## explicit
 github.com/tidwall/gjson
 # github.com/tidwall/match v1.1.1
 github.com/tidwall/match
 # github.com/tidwall/pretty v1.2.0
 github.com/tidwall/pretty
-# github.com/tidwall/sjson v1.2.2
+# github.com/tidwall/sjson v1.2.4
 ## explicit
 github.com/tidwall/sjson
-# github.com/whosonfirst/go-ioutil v1.0.0
+# github.com/whosonfirst/go-ioutil v1.0.1
 ## explicit
 github.com/whosonfirst/go-ioutil
-# github.com/whosonfirst/go-reader v0.9.0
+# github.com/whosonfirst/go-reader v0.9.1
 ## explicit
 github.com/whosonfirst/go-reader
 # github.com/whosonfirst/go-whosonfirst-export/v2 v2.4.0
@@ -165,7 +165,7 @@ github.com/whosonfirst/go-whosonfirst-spr/v2
 # github.com/whosonfirst/go-whosonfirst-uri v1.1.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-writer v0.6.0
+# github.com/whosonfirst/go-writer v0.7.1
 ## explicit
 github.com/whosonfirst/go-writer
 # github.com/whosonfirst/warning v0.1.1
@@ -197,7 +197,7 @@ gocloud.dev/internal/gcerr
 gocloud.dev/internal/oc
 gocloud.dev/internal/openurl
 gocloud.dev/internal/retry
-# golang.org/x/net v0.0.0-20210825183410-e898025ed96a
+# golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
