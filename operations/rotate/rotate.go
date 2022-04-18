@@ -28,44 +28,44 @@ import (
 
 // type Rotation provides a struct for rotating media files.
 type Rotation struct {
-	// DataSource is a valid gocloud.dev/blob Bucket URI where WOF feature records associated with media files are stored.	
-	DataSource  string
-	// MediaSource is a valid gocloud.dev/blob Bucket URI where media files are stored.	
+	// DataSource is a valid gocloud.dev/blob Bucket URI where WOF feature records associated with media files are stored.
+	DataSource string
+	// MediaSource is a valid gocloud.dev/blob Bucket URI where media files are stored.
 	MediaSource string
-	// A valid whosonfirst/go-whosonfirst-export Exporter for exporting Who's On First feature records.	
-	Exporter    export.Exporter
-	// A boolean flag indicating whether to perform a removal in "dry run" mode.	
-	Dryrun      bool
+	// A valid whosonfirst/go-whosonfirst-export Exporter for exporting Who's On First feature records.
+	Exporter export.Exporter
+	// A boolean flag indicating whether to perform a removal in "dry run" mode.
+	Dryrun bool
 }
 
 // type RotateRequest provides a struct encapsulating data for rotating a given media file.
 type RotateRequest struct {
-	// A valid Who's On First ID (to remove).	
-	Id      int64  `json:"id"`
+	// A valid Who's On First ID (to remove).
+	Id int64 `json:"id"`
 	// The number of degrees to rotate a media file.
-	Degrees int    `json:"degrees"`
-	// The data repository where Id is stored.	
-	Repo    string `json:"repo"`
+	Degrees int `json:"degrees"`
+	// The data repository where Id is stored.
+	Repo string `json:"repo"`
 	// A boolean flag indicating whether to remove the old file on completion.
-	Prune   bool   `json:"prune"`
+	Prune bool `json:"prune"`
 }
 
 // type RotateResponse provides a struct containing metadata about a rotated media file.
 type RotateResponse struct {
 	// The Who's On First ID of the media file that was rotated.
-	Id        int64
+	Id int64
 	// The URI secret associated with the rotated media file.
-	Secret    string
-	// The URI label associated with the rotated media file.	
-	Label     string
-	// The filename extension associated with the rotated media file.	
+	Secret string
+	// The URI label associated with the rotated media file.
+	Label string
+	// The filename extension associated with the rotated media file.
 	Extension string
 	// An image.Image instance containing the body of the rotated media file.
-	Image     image.Image
+	Image image.Image
 	// The URI of the unrotated media file.
-	OldPath   string
-	// The URI of the rotated media file.	
-	NewPath   string
+	OldPath string
+	// The URI of the rotated media file.
+	NewPath string
 }
 
 // NewRotation returns a new Rotation instance.

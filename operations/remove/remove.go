@@ -23,20 +23,20 @@ import (
 // type Removal provides a struct for removing media files.
 type Removal struct {
 	// DataSource is a valid gocloud.dev/blob Bucket URI where WOF feature records associated with media files are stored.
-	DataSource  string
+	DataSource string
 	// MediaSource is a valid gocloud.dev/blob Bucket URI where media files are stored.
 	MediaSource string
 	// A valid whosonfirst/go-whosonfirst-export Exporter for exporting Who's On First feature records.
-	Exporter    export.Exporter
+	Exporter export.Exporter
 	// A boolean flag indicating whether to perform a removal in "dry run" mode.
-	Dryrun      bool
-	mu          *sync.RWMutex
+	Dryrun bool
+	mu     *sync.RWMutex
 }
 
 // type RemovalRequest provides encapsulating data for removing a given media file.
 type RemovalRequest struct {
 	// A valid Who's On First ID (to remove).
-	Id   int64  `json:"id"`
+	Id int64 `json:"id"`
 	// The data repository where Id is stored.
 	Repo string `json:"repo"`
 }
