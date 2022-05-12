@@ -11,9 +11,8 @@ import (
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	wof_uri "github.com/whosonfirst/go-whosonfirst-uri"
-	wof_writer "github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-writer"
 	"gocloud.dev/blob"
 	"io"
 	"log"
@@ -192,7 +191,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return errors.New("Report is missing origin_uri. Not sure what to do with it...")
 	}
 
-	uri, err := iiifuri.NewURI(ctx, process_report.OriginURI)
+	ru, err := iiifuri.NewURI(ctx, process_report.OriginURI)
 
 	if err != nil {
 		return err
@@ -200,7 +199,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	var wof_id int64
 
-	switch uri.Scheme() {
+	switch ru.Scheme() {
 	case "idsecret":
 
 		u, _ := url.Parse(process_report.OriginURI) // we've just parse
@@ -221,7 +220,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	// START OF sudo wrap me in a function or something
 
-	wof_path, err := wof_uri.Id2RelPath(wof_id)
+	wof_path, err := uri.Id2RelPath(wof_id)
 
 	if err != nil {
 		return err
@@ -241,13 +240,11 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	defer wof_fh.Close()
 
-	f, err := feature.LoadGeoJSONFeatureFromReader(wof_fh)
+	old_feature, err := io.ReadAll(wof_fh)
 
 	if err != nil {
 		return err
 	}
-
-	old_feature := f.Bytes()
 
 	new_feature, err := p.appendReport(old_feature, process_report)
 
@@ -275,7 +272,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		writer_uri = fmt.Sprintf(p.WriterURI, repo)
 	}
 
-	wr, err := wof_writer.NewWriter(ctx, writer_uri)
+	wr, err := writer.NewWriter(ctx, writer_uri)
 
 	if err != nil {
 		return err

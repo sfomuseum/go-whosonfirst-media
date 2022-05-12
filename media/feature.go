@@ -1,7 +1,6 @@
 package media
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -9,9 +8,7 @@ import (
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/mknote"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-id"
 	"github.com/whosonfirst/go-whosonfirst-placetypes"
 	"gocloud.dev/blob"
@@ -46,6 +43,7 @@ type NewMediaFeatureNameFunc func(string) (string, error)
 
 // NewMediaFeatureOptions is a struct containing application-specific options used in the create of new media-related GeoJSON Features.
 type NewMediaFeatureOptions struct {
+	// The gocloud.dev/blob.Bucket where media records are loaded from
 	SourceBucket *blob.Bucket
 	// The name of the repository that this feature will be stored in.
 	Repo string
@@ -58,7 +56,7 @@ type NewMediaFeatureOptions struct {
 }
 
 // Create a new geojson.Feature instance with media:properties associated with a Feature instance it depicts.
-func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
+func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depicts []byte, opts *NewMediaFeatureOptions) ([]byte, error) {
 
 	pr, err := id.NewProvider(ctx)
 
@@ -70,23 +68,21 @@ func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depi
 }
 
 // Create a new geojson.Feature instance with media:properties associated with a Feature instance it depicts, using a custom id.Provider.
-func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gather.GatherImagesResponse, depicts geojson.Feature, opts *NewMediaFeatureOptions) (geojson.Feature, error) {
+func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gather.GatherImagesResponse, depicts []byte, opts *NewMediaFeatureOptions) ([]byte, error) {
 
 	if opts.Repo == "" {
 		return nil, errors.New("Missing wof:repo")
 	}
 
-	centroid, err := whosonfirst.Centroid(depicts)
+	centroid, _, err := properties.Centroid(depicts)
 
 	if err != nil {
 		return nil, err
 	}
 
-	depicts_coords := centroid.Coord()
-
 	coords := []float64{
-		depicts_coords.X,
-		depicts_coords.Y,
+		centroid.X(),
+		centroid.Y(),
 	}
 
 	geom := Geometry{
@@ -94,14 +90,29 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		Coordinates: coords,
 	}
 
-	depicts_id := whosonfirst.Id(depicts)
-	depicts_name := whosonfirst.Name(depicts)
-	hierarchies := whosonfirst.Hierarchies(depicts)
+	depicts_id, err := properties.Id(depicts)
 
-	inception := whosonfirst.Inception(depicts)
-	cessation := whosonfirst.Cessation(depicts)
-	country := whosonfirst.Country(depicts)
-	source_geom := whosonfirst.Source(depicts)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive ID, %w", err)
+	}
+
+	depicts_name, err := properties.Name(depicts)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive name, %w", err)
+	}
+
+	hierarchies := properties.Hierarchies(depicts)
+
+	inception := properties.Inception(depicts)
+	cessation := properties.Cessation(depicts)
+	country := properties.Country(depicts)
+
+	source_geom, err := properties.Source(depicts)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive source, %w", err)
+	}
 
 	props := make(map[string]interface{})
 
@@ -296,11 +307,5 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		return nil, err
 	}
 
-	// see the way we're not trying to return a WOF specific
-	// feature? that is on purpose since we have no idea what
-	// sort of properties (notably  wof:placetype) have been
-	// set above (20191216/thisisaaronland)
-
-	br := bytes.NewReader(enc_f)
-	return feature.LoadGeoJSONFeatureFromReader(br)
+	return enc_f, nil
 }

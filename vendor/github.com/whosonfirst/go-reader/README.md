@@ -2,8 +2,6 @@
 
 There are many interfaces for reading files. This one is ours. It returns `io.ReadSeekCloser` instances.
 
-_This package supersedes the [go-whosonfirst-readwrite](https://github.com/whosonfirst/go-whosonfirst-readwrite) package._
-
 ## Documentation
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/whosonfirst/go-reader.svg)](https://pkg.go.dev/github.com/whosonfirst/go-reader)
@@ -314,9 +312,23 @@ func main() {
 }
 ```
 
-## See also
+### repo://
 
-* https://github.com/whosonfirst/go-writer
+This is a convenience scheme for working with Who's On First data repositories.
+
+It will update a URI by appending a `data` directory to its path and changing its scheme to `fs://` before invoking `reader.NewReader` with the updated URI.
+
+```
+import (
+	"context"
+	"github.com/whosonfirst/go-reader"
+)
+
+func main() {
+	ctx := context.Background()
+	r, _ := reader.NewReader(ctx, "repo:///usr/local/data/whosonfirst-data-admin-ca")
+}
+```
 
 ### stdin://
 
