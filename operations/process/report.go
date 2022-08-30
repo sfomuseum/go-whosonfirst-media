@@ -12,7 +12,7 @@ import (
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-writer/v2"
 	"gocloud.dev/blob"
 	"io"
 	"log"
@@ -119,7 +119,7 @@ func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string)
 			if err != nil {
 				err_ch <- ReportError{
 					Report: report_uri,
-					Error:  err,
+					Error:  fmt.Errorf("Failed to process report '%s', %w", report_uri, err),
 				}
 			}
 
@@ -148,8 +148,7 @@ func (p *ReportProcessor) ProcessReports(ctx context.Context, reports ...string)
 			error_msgs[i] = fmt.Sprintf("%s: %v", e.Report, e.Error)
 		}
 
-		msg := fmt.Sprintf("One or more report errors: %s", strings.Join(error_msgs, ";"))
-		return errors.New(msg)
+		return fmt.Errorf("One or more report errors: %s", strings.Join(error_msgs, ";"))
 	}
 
 	return nil
@@ -168,7 +167,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	fh, err := p.Reports.NewReader(ctx, report_uri, nil)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create new reader for '%s', %w", report_uri, err)
 	}
 
 	defer fh.Close()
@@ -176,7 +175,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	body, err := io.ReadAll(fh)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read report for '%s', %w", report_uri, err)
 	}
 
 	var process_report *IIIFProcessReport
@@ -184,17 +183,17 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	err = json.Unmarshal(body, &process_report)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to unmarshal report for '%s', %w", report_uri, err)
 	}
 
 	if process_report.OriginURI == "" {
-		return errors.New("Report is missing origin_uri. Not sure what to do with it...")
+		return fmt.Errorf("Report (%s) is missing origin_uri. Not sure what to do with it...", report_uri)
 	}
 
 	ru, err := iiifuri.NewURI(ctx, process_report.OriginURI)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create new IIIF URI for report '%s' from '%s', %w", report_uri, process_report.OriginURI, err)
 	}
 
 	var wof_id int64
@@ -215,7 +214,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		wof_id = id
 
 	default:
-		return errors.New("Unsupported URI driver in report.")
+		return fmt.Errorf("Unsupported URI driver in report: %s", ru.Scheme())
 	}
 
 	// START OF sudo wrap me in a function or something
@@ -261,7 +260,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	repo_rsp := gjson.GetBytes(new_feature, "properties.wof:repo")
 
 	if !repo_rsp.Exists() {
-		return errors.New("Missing properties.wof:repo")
+		return fmt.Errorf("Missing properties.wof:repo")
 	}
 
 	repo := repo_rsp.String()
@@ -275,7 +274,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	wr, err := writer.NewWriter(ctx, writer_uri)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create writer for report '%s' from writer '%s', %w", report_uri, writer_uri, err)
 	}
 
 	feature_reader := bytes.NewReader(new_feature)

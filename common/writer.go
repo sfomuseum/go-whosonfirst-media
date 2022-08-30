@@ -2,7 +2,7 @@ package common
 
 import (
 	"context"
-	"github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-writer/v2"
 	"sync"
 )
 

@@ -116,7 +116,7 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 
 	props := make(map[string]interface{})
 
-	wof_id, err := pr.NewID()
+	wof_id, err := pr.NewID(ctx)
 
 	if err != nil {
 		return nil, err

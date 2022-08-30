@@ -1,13 +1,20 @@
 package properties
 
 import (
+	"context"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
-	"github.com/whosonfirst/go-whosonfirst-id"
+	id "github.com/whosonfirst/go-whosonfirst-id"
 )
 
 func EnsureWOFId(feature []byte, provider id.Provider) ([]byte, error) {
 
+	// Eventually `ctx` should be part of the method signature but
+	// should happen go-whosonfirst-export wide and will be a backwards
+	// incompatible change
+	
+	ctx := context.Background()
+	
 	var err error
 
 	var wof_id int64
@@ -20,7 +27,7 @@ func EnsureWOFId(feature []byte, provider id.Provider) ([]byte, error) {
 
 	} else {
 
-		i, err := provider.NewID()
+		i, err := provider.NewID(ctx)
 
 		if err != nil {
 			return nil, err
