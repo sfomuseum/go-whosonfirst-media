@@ -6,6 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"io"
+	"log"
+	"path/filepath"
+	"strings"
+
 	"github.com/aaronland/go-image-tools/imaging"
 	"github.com/aaronland/go-image-tools/util"
 	"github.com/aaronland/go-string/random"
@@ -17,13 +24,7 @@ import (
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"gocloud.dev/blob"
-	"image"
-	"image/color"
-	"io"
-	"log"
-	"path/filepath"
-	"strings"
+	"gocloud.dev/blob"	
 )
 
 // type Rotation provides a struct for rotating media files.

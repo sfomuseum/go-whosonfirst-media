@@ -6,14 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	iiifuri "github.com/go-iiif/go-iiif-uri"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
-	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
-	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer/v3"
-	"gocloud.dev/blob"
 	"io"
 	"log"
 	"mime"
@@ -22,6 +14,15 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	iiifuri "github.com/go-iiif/go-iiif-uri"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-ioutil"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-writer/v3"
+	"gocloud.dev/blob"	
 )
 
 // type MediaPropertiesSizes defines a struct containing properties about a media file

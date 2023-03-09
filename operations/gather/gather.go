@@ -3,14 +3,15 @@ package gather
 
 import (
 	"context"
-	"github.com/sfomuseum/go-whosonfirst-media/common"
-	"gocloud.dev/blob"
 	"io"
 	"log"
 	"mime"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/sfomuseum/go-whosonfirst-media/common"
+	"gocloud.dev/blob"	
 )
 
 // type GatherImagesResponse provides a struct containing basic information about a file.

@@ -6,18 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sfomuseum/go-whosonfirst-media/common"
-	"github.com/tidwall/sjson"
-	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
-	"github.com/whosonfirst/go-whosonfirst-uri"
-	"gocloud.dev/blob"
 	"io"
 	"log"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/sfomuseum/go-whosonfirst-media/common"
+	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-ioutil"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"gocloud.dev/blob"	
 )
 
 // type Removal provides a struct for removing media files.

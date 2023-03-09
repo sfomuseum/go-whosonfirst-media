@@ -5,9 +5,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gocloud.dev/blob"
 	"io"
 	"path/filepath"
+
+	"gocloud.dev/blob"	
 )
 
 // CloneImageOptions is a struct containing application-specific options
