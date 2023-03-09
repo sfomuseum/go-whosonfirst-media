@@ -8,7 +8,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // CloneImageOptions is a struct containing application-specific options

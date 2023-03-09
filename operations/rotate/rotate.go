@@ -24,7 +24,7 @@ import (
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // type Rotation provides a struct for rotating media files.

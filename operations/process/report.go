@@ -22,7 +22,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // type MediaPropertiesSizes defines a struct containing properties about a media file
@@ -266,10 +266,14 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 	repo := repo_rsp.String()
 
-	writer_uri := p.WriterURI
+	writer_uri, err := url.QueryUnescape(p.WriterURI)
 
-	if strings.Contains(p.WriterURI, "%s") {
-		writer_uri = fmt.Sprintf(p.WriterURI, repo)
+	if err != nil {
+		return fmt.Errorf("Failed to unescape writer URI, %w", err)
+	}
+
+	if strings.Contains(p.WriterURI, "{repo}") {
+		writer_uri = strings.Replace(writer_uri, "{repo}", repo, 1)
 	}
 
 	wr, err := writer.NewWriter(ctx, writer_uri)
@@ -288,7 +292,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	_, err = wr.Write(ctx, wof_path, feature_readcloser)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to write report to %s, %w", wof_path, err)
 	}
 
 	// END OF sudo wrap me in a function or something
@@ -298,7 +302,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		err := p.Callback(ctx, process_report, old_feature, new_feature)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to execute report processing callback, %w", err)
 		}
 	}
 

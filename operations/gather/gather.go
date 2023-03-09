@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/sfomuseum/go-whosonfirst-media/common"
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // type GatherImagesResponse provides a struct containing basic information about a file.

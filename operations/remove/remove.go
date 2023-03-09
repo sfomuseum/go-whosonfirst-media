@@ -18,7 +18,7 @@ import (
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // type Removal provides a struct for removing media files.
