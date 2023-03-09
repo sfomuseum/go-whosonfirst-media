@@ -272,7 +272,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return fmt.Errorf("Failed to unescape writer URI, %w", err)
 	}
 
-	if strings.Contains(p.WriterURI, "{repo}") {
+	if strings.Contains(writer_uri, "{repo}") {
 		writer_uri = strings.Replace(writer_uri, "{repo}", repo, 1)
 	}
 
