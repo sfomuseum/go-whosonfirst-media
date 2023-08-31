@@ -3,6 +3,7 @@ package gather
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"mime"
@@ -38,8 +39,8 @@ type GatherImagesOptions struct {
 	// A custom callback function to be applied to each image that is gathered
 	Callback GatherImageCallbackFunc
 	// A boolean flag indicating whether image hashes should be calculated for gathered images
-	HashImages bool
-	// A valid sfomuseum/go-text-emboss.Embosser instance used to extract text from gathered images
+	EmbossImages bool
+	// A valid sfomuseum/go-text-emboss.Embosser instance used to extract text from gathered images	
 	Embosser emboss.Embosser
 }
 
@@ -48,7 +49,6 @@ func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallba
 
 	opts := &GatherImagesOptions{
 		Callback:   cb,
-		HashImages: true,
 		Bucket:     bucket,
 	}
 
@@ -191,30 +191,32 @@ func GatherImageResponseWithPath(ctx context.Context, opts *GatherImagesOptions,
 	fp, err := common.FingerprintFile(ctx, opts.Bucket, path)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to derive image fingerprints for %s, %w", path, err)
 	}
 
 	hashes, err := common.ImageHashes(ctx, opts.Bucket, path)
-
+	
 	if err != nil {
-		return nil, err
+			return nil, fmt.Errorf("Failed to derive image hashes for %s, %w", path, err)
 	}
-
-	im_text, err := common.ExtractText(ctx, opts.Embosser, opts.Bucket, path)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// TO DO: Extract text here...
-
+	
 	rsp := &GatherImagesResponse{
 		Path:        path,
 		MimeType:    t,
 		Fingerprint: fp,
 		ImageHashes: hashes,
-		Text:        im_text,
 	}
+		
+	if opts.EmbossImages {
+		
+		im_text, err := common.ExtractText(ctx, opts.Embosser, opts.Bucket, path)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to extract text for %s, %w", path, err)
+		}
 
+		rsp.Text = im_text
+	}
+	
 	return rsp, nil
 }
