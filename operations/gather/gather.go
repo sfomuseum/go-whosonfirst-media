@@ -27,7 +27,7 @@ type GatherImagesResponse struct {
 	// The set of image hashes for the image file being gathered
 	ImageHashes []*common.ImageHashRsp
 	// Text extracted from the image using the `sfomuseum/go-text-emboss` package.
-	Text []byte
+	ImageText []byte
 }
 
 // type GatherImageCallbackFunc provides a function signature for custom callbacks applied to gathered images.
@@ -215,7 +215,7 @@ func GatherImageResponseWithPath(ctx context.Context, opts *GatherImagesOptions,
 			return nil, fmt.Errorf("Failed to extract text for %s, %w", path, err)
 		}
 
-		rsp.Text = im_text
+		rsp.ImageText = im_text
 	}
 	
 	return rsp, nil

@@ -202,6 +202,10 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		props[k] = h.Hash
 	}
 
+	if rsp.ImageText != nil {
+		props["media:imagetext"] = string(rsp.ImageText)
+	}
+	
 	props["mz:is_approximate"] = 1
 
 	/*
