@@ -1,6 +1,6 @@
 module github.com/sfomuseum/go-whosonfirst-media
 
-go 1.18
+go 1.21.0
 
 require (
 	github.com/aaronland/go-image-tools v0.1.4
@@ -9,6 +9,7 @@ require (
 	github.com/corona10/goimagehash v1.1.0
 	github.com/go-iiif/go-iiif-uri v0.5.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+	github.com/sfomuseum/go-text-emboss v0.0.2
 	github.com/tidwall/gjson v1.16.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/whosonfirst/go-ioutil v1.0.2
