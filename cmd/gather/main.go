@@ -13,7 +13,7 @@ import (
 
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"	
+	_ "gocloud.dev/blob/fileblob"
 )
 
 func main() {

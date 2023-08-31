@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sfomuseum/go-text-emboss"
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"gocloud.dev/blob"
 )
@@ -33,10 +34,13 @@ type GatherImageCallbackFunc func(*GatherImagesResponse) error
 
 // type GatherImagesOptions provides configuration options for gathering images
 type GatherImagesOptions struct {
+	Bucket *blob.Bucket
 	// A custom callback function to be applied to each image that is gathered
 	Callback GatherImageCallbackFunc
 	// A boolean flag indicating whether image hashes should be calculated for gathered images
 	HashImages bool
+	// A valid sfomuseum/go-text-emboss.Embosser instance used to extract text from gathered images
+	Embosser emboss.Embosser
 }
 
 // GatherImages will gather images from bucket enabling image hashing by default.
@@ -45,13 +49,14 @@ func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallba
 	opts := &GatherImagesOptions{
 		Callback:   cb,
 		HashImages: true,
+		Bucket:     bucket,
 	}
 
-	return GatherImagesWithOptions(ctx, bucket, opts)
+	return GatherImagesWithOptions(ctx, opts)
 }
 
 // GatherImages will gather images from bucket with custom configuration options.
-func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *GatherImagesOptions) error {
+func GatherImagesWithOptions(ctx context.Context, opts *GatherImagesOptions) error {
 
 	gather_ch := make(chan *GatherImagesResponse)
 
@@ -60,7 +65,7 @@ func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *Gat
 
 	go func() {
 
-		err := CrawlImages(ctx, bucket, gather_ch)
+		err := CrawlImages(ctx, opts, gather_ch)
 
 		if err != nil {
 			err_ch <- err
@@ -108,7 +113,7 @@ func GatherImagesWithOptions(ctx context.Context, bucket *blob.Bucket, opts *Gat
 
 // Iterate through all the items stored in a blob.Bucket instance, generate a GatherImagesResponse for things that are images
 // and dispatch that response to a user-defined channel.
-func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan *GatherImagesResponse) error {
+func CrawlImages(ctx context.Context, opts *GatherImagesOptions, rsp_ch chan *GatherImagesResponse) error {
 
 	var list func(context.Context, *blob.Bucket, string) error
 
@@ -149,7 +154,7 @@ func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan *GatherIm
 				continue
 			}
 
-			rsp, err := GatherImageResponseWithPath(ctx, bucket, obj.Key)
+			rsp, err := GatherImageResponseWithPath(ctx, opts, obj.Key)
 
 			if err != nil {
 				return err
@@ -165,11 +170,11 @@ func CrawlImages(ctx context.Context, bucket *blob.Bucket, rsp_ch chan *GatherIm
 		return nil
 	}
 
-	return list(ctx, bucket, "")
+	return list(ctx, opts.Bucket, "")
 }
 
 // GatherImageResponseWithPath will generate a single GatherImagesResponse response for `path` (contained in `bucket`).
-func GatherImageResponseWithPath(ctx context.Context, bucket *blob.Bucket, path string) (*GatherImagesResponse, error) {
+func GatherImageResponseWithPath(ctx context.Context, opts *GatherImagesOptions, path string) (*GatherImagesResponse, error) {
 
 	ext := filepath.Ext(path)
 
@@ -183,25 +188,32 @@ func GatherImageResponseWithPath(ctx context.Context, bucket *blob.Bucket, path 
 		return nil, nil
 	}
 
-	fp, err := common.FingerprintFile(ctx, bucket, path)
+	fp, err := common.FingerprintFile(ctx, opts.Bucket, path)
 
 	if err != nil {
 		return nil, err
 	}
 
-	hashes, err := common.ImageHashes(ctx, bucket, path)
+	hashes, err := common.ImageHashes(ctx, opts.Bucket, path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	im_text, err := common.ExtractText(ctx, opts.Embosser, opts.Bucket, path)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TO DO: Extract text here...
-	
+
 	rsp := &GatherImagesResponse{
 		Path:        path,
 		MimeType:    t,
 		Fingerprint: fp,
 		ImageHashes: hashes,
+		Text:        im_text,
 	}
 
 	return rsp, nil

@@ -3,9 +3,9 @@ package common
 import (
 	"context"
 	"fmt"
-	
-	"gocloud.dev/blob"
+
 	"github.com/sfomuseum/go-text-emboss"
+	"gocloud.dev/blob"
 )
 
 func ExtractText(ctx context.Context, e emboss.Embosser, bucket *blob.Bucket, path string) ([]byte, error) {

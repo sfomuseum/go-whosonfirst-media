@@ -176,8 +176,8 @@ github.com/sfomuseum/go-edtf v1.1.1 h1:R5gElndHGDaK/rGSh2X+ulaLtlcHCdQA1cTzB8e9w
 github.com/sfomuseum/go-edtf v1.1.1/go.mod h1:1rP0EJZ/84j3HO80vGcnG2T9MFBDAFyTNtjrr8cv3T4=
 github.com/sfomuseum/go-flags v0.7.0/go.mod h1:ML3DTNbF9xnjExSdS/9FtVLjIUhRU5gm/ehzISv+t2w=
 github.com/sfomuseum/go-flags v0.8.3/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
-github.com/sfomuseum/go-text-emboss v0.0.2 h1:ND6M99V2ZUQu/TCUjprlnekv5ktoengmUpFhTQlkXyw=
-github.com/sfomuseum/go-text-emboss v0.0.2/go.mod h1://uO0HwRIOzyMMrOhETPRE3RDpenWa4B3/Gm3esbf9A=
+github.com/sfomuseum/go-text-emboss v0.0.3 h1:5B/9cJUnLVl3StG3MvGZQnyM7xE1/ZlGIq9dvbO23/A=
+github.com/sfomuseum/go-text-emboss v0.0.3/go.mod h1://uO0HwRIOzyMMrOhETPRE3RDpenWa4B3/Gm3esbf9A=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=

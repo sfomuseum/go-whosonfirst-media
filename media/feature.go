@@ -17,7 +17,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-id"
 	"github.com/whosonfirst/go-whosonfirst-placetypes"
-	"gocloud.dev/blob"	
+	"gocloud.dev/blob"
 )
 
 // type Coordinates stores a single longitude, latitude coordinate pair.
