@@ -3,10 +3,11 @@ package common
 import (
 	"context"
 	"errors"
-	"github.com/corona10/goimagehash"
-	"gocloud.dev/blob"
 	"image"
 	"log"
+
+	"github.com/corona10/goimagehash"
+	"gocloud.dev/blob"
 )
 
 // ImageHashRsp is a struct representing the results of an image hashing operation.

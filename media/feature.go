@@ -5,18 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	_ "log"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/mknote"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-id"
 	"github.com/whosonfirst/go-whosonfirst-placetypes"
-	"gocloud.dev/blob"
-	_ "log"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
+	"gocloud.dev/blob"	
 )
 
 // type Coordinates stores a single longitude, latitude coordinate pair.

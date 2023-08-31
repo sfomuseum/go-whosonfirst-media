@@ -2,8 +2,9 @@ package common
 
 import (
 	"context"
-	"github.com/whosonfirst/go-writer/v3"
 	"sync"
+
+	"github.com/whosonfirst/go-writer/v3"
 )
 
 var writers = make(map[string]writer.Writer)
