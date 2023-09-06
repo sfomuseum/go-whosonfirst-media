@@ -2,8 +2,9 @@ package common
 
 import (
 	"context"
-	"github.com/whosonfirst/go-reader"
 	"sync"
+
+	"github.com/whosonfirst/go-reader"
 )
 
 var readers = make(map[string]reader.Reader)

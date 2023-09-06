@@ -5,6 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	_ "log"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/mknote"
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
@@ -12,11 +18,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-id"
 	"github.com/whosonfirst/go-whosonfirst-placetypes"
 	"gocloud.dev/blob"
-	_ "log"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
 )
 
 // type Coordinates stores a single longitude, latitude coordinate pair.
@@ -201,6 +202,10 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		props[k] = h.Hash
 	}
 
+	if rsp.ImageText != nil {
+		props["media:imagetext"] = string(rsp.ImageText)
+	}
+	
 	props["mz:is_approximate"] = 1
 
 	/*

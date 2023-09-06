@@ -4,8 +4,9 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
-	"gocloud.dev/blob"
 	"io"
+
+	"gocloud.dev/blob"
 )
 
 // Generate a SHA-1 hash of a file stored in a blob.Bucket instance.
