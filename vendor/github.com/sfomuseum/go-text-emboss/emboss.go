@@ -11,9 +11,23 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+// https://github.com/sfomuseum/swift-text-emboss/blob/main/Sources/TextEmboss/TextEmboss.swift#L4-L8
+// https://github.com/sfomuseum/swift-text-emboss-grpc/blob/main/Sources/TextEmbossGRPC/embosser.proto#L9-L13
+
+type EmbossTextResult struct {
+	Text    string `json:"text"`
+	Source  string `json:"source"`
+	Created int64  `json:"created"`
+}
+
+func (r *EmbossTextResult) String() string {
+	return r.Text
+}
+
 type Embosser interface {
-	EmbossText(context.Context, string) ([]byte, error)
-	EmbossTextWithReader(context.Context, string, io.Reader) ([]byte, error)
+	EmbossText(context.Context, string) (*EmbossTextResult, error)
+	EmbossTextWithReader(context.Context, string, io.Reader) (*EmbossTextResult, error)
+	Close(context.Context) error
 }
 
 var embosser_roster roster.Roster

@@ -40,7 +40,7 @@ type GatherImagesOptions struct {
 	Callback GatherImageCallbackFunc
 	// A boolean flag indicating whether image hashes should be calculated for gathered images
 	EmbossImages bool
-	// A valid sfomuseum/go-text-emboss.Embosser instance used to extract text from gathered images	
+	// A valid sfomuseum/go-text-emboss.Embosser instance used to extract text from gathered images
 	Embosser emboss.Embosser
 }
 
@@ -48,8 +48,8 @@ type GatherImagesOptions struct {
 func GatherImages(ctx context.Context, bucket *blob.Bucket, cb GatherImageCallbackFunc) error {
 
 	opts := &GatherImagesOptions{
-		Callback:   cb,
-		Bucket:     bucket,
+		Callback: cb,
+		Bucket:   bucket,
 	}
 
 	return GatherImagesWithOptions(ctx, opts)
@@ -195,28 +195,28 @@ func GatherImageResponseWithPath(ctx context.Context, opts *GatherImagesOptions,
 	}
 
 	hashes, err := common.ImageHashes(ctx, opts.Bucket, path)
-	
+
 	if err != nil {
-			return nil, fmt.Errorf("Failed to derive image hashes for %s, %w", path, err)
+		return nil, fmt.Errorf("Failed to derive image hashes for %s, %w", path, err)
 	}
-	
+
 	rsp := &GatherImagesResponse{
 		Path:        path,
 		MimeType:    t,
 		Fingerprint: fp,
 		ImageHashes: hashes,
 	}
-		
+
 	if opts.EmbossImages {
-		
+
 		im_text, err := common.ExtractText(ctx, opts.Embosser, opts.Bucket, path)
-		
+
 		if err != nil {
 			return nil, fmt.Errorf("Failed to extract text for %s, %w", path, err)
 		}
 
 		rsp.ImageText = im_text
 	}
-	
+
 	return rsp, nil
 }

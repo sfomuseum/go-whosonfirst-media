@@ -18,5 +18,11 @@ func ExtractText(ctx context.Context, e emboss.Embosser, bucket *blob.Bucket, pa
 
 	defer r.Close()
 
-	return e.EmbossTextWithReader(ctx, path, r)
+	rsp, err := e.EmbossTextWithReader(ctx, path, r)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to emboss text for %s, %w", path, err)
+	}
+
+	return []byte(rsp.Text), nil
 }

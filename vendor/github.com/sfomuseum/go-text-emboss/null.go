@@ -15,17 +15,29 @@ func init() {
 }
 
 func NewNullEmbosser(ctx context.Context, uri string) (Embosser, error) {
-
 	e := &NullEmbosser{}
 	return e, nil
 }
 
-func (e *NullEmbosser) EmbossText(ctx context.Context, path string) ([]byte, error) {
-
-	return []byte(""), nil
+func (e *NullEmbosser) EmbossText(ctx context.Context, path string) (*EmbossTextResult, error) {
+	return e.nullEmbossTextResult(), nil
 }
 
-func (e *NullEmbosser) EmbossTextWithReader(ctx context.Context, path string, r io.Reader) ([]byte, error) {
+func (e *NullEmbosser) EmbossTextWithReader(ctx context.Context, path string, r io.Reader) (*EmbossTextResult, error) {
+	return e.nullEmbossTextResult(), nil
+}
 
-	return []byte(""), nil
+func (e *NullEmbosser) Close(ctx context.Context) error {
+	return nil
+}
+
+func (e *NullEmbosser) nullEmbossTextResult() *EmbossTextResult {
+
+	r := &EmbossTextResult{
+		Text:    "",
+		Source:  "",
+		Created: 0,
+	}
+
+	return r
 }

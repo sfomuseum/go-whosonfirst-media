@@ -2,6 +2,7 @@ package emboss
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -41,9 +42,11 @@ func NewLocalEmbosser(ctx context.Context, uri string) (Embosser, error) {
 	return e, nil
 }
 
-func (e *LocalEmbosser) EmbossText(ctx context.Context, path string) ([]byte, error) {
+func (e *LocalEmbosser) EmbossText(ctx context.Context, path string) (*EmbossTextResult, error) {
 
 	args := []string{
+		"--as-json",
+		"true",
 		path,
 	}
 
@@ -53,10 +56,18 @@ func (e *LocalEmbosser) EmbossText(ctx context.Context, path string) ([]byte, er
 		return nil, fmt.Errorf("Failed to extract text, %w", err)
 	}
 
-	return out, nil
+	var rsp *EmbossTextResult
+
+	err = json.Unmarshal(out, &rsp)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal response, %w", err)
+	}
+
+	return rsp, nil
 }
 
-func (e *LocalEmbosser) EmbossTextWithReader(ctx context.Context, path string, r io.Reader) ([]byte, error) {
+func (e *LocalEmbosser) EmbossTextWithReader(ctx context.Context, path string, r io.Reader) (*EmbossTextResult, error) {
 
 	var wr io.WriteCloser
 
@@ -97,4 +108,8 @@ func (e *LocalEmbosser) EmbossTextWithReader(ctx context.Context, path string, r
 	}
 
 	return e.EmbossText(ctx, path)
+}
+
+func (e *LocalEmbosser) Close(ctx context.Context) error {
+	return nil
 }
