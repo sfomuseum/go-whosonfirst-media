@@ -22,12 +22,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
-	"gocloud.dev/blob"
+	
 	_ "gocloud.dev/blob/fileblob"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+
+	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
+	"gocloud.dev/blob"
 )
 
 func main() {

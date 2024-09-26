@@ -4,10 +4,9 @@ package remove
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -85,8 +84,7 @@ func (c *Removal) Remove(ctx context.Context, requests ...*RemovalRequest) error
 			err := c.remove(ctx, req)
 
 			if err != nil {
-				msg := fmt.Sprintf("failed to remove %d because %s\n", req.Id, err)
-				err_ch <- errors.New(msg)
+				err_ch <- fmt.Errorf("failed to remove %d because %s\n", req.Id, err)
 				return
 			}
 
@@ -100,9 +98,9 @@ func (c *Removal) Remove(ctx context.Context, requests ...*RemovalRequest) error
 		case <-done_ch:
 			remaining -= 1
 		case id := <-removed_ch:
-			log.Printf("successfully removed ID %d\n", id)
+			slog.Debug("Removed ID", "id", id)
 		case err := <-err_ch:
-			log.Println(err)
+			slog.Error("Remove channel received an error", "error", err)
 		default:
 			// pass
 		}
@@ -116,13 +114,13 @@ func (c *Removal) remove(ctx context.Context, req *RemovalRequest) error {
 	err := c.deprecateMedia(ctx, req)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to deprecate media for %d, %w", req.Id, err)
 	}
 
 	err = c.deleteMediaFiles(ctx, req)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to delete media files for %d, %w", req.Id, err)
 	}
 
 	return nil
@@ -135,7 +133,7 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 	rel_path, err := uri.Id2RelPath(id)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to derive relative path for %d, %w", id, err)
 	}
 
 	reader_source := c.DataSource
@@ -149,13 +147,13 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 	rdr, err := common.NewReader(ctx, reader_source)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create new reader, %w", err)
 	}
 
 	wr, err := common.NewWriter(ctx, writer_source)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create new writer, %w", err)
 	}
 
 	// basically we have to block on (git) master
@@ -167,41 +165,41 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 	old, err := rdr.Read(ctx, rel_path)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read body for %s, %w", rel_path, err)
 	}
 
 	new, err := c.deprecateFeature(old)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to deprecated %s, %w", rel_path, err)
 	}
 
 	body, err := io.ReadAll(new)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read body for deprecated feature (%s), %w", rel_path, err)
 	}
 
 	body, err = c.Exporter.Export(ctx, body)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to export deprecated feature (%s), %w", rel_path, err)
 	}
 
 	br := bytes.NewReader(body)
 	fh, err := ioutil.NewReadSeekCloser(br)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create ReadSeekCloser for deprecated feature (%s), %w", rel_path, err)
 	}
 
 	if c.Dryrun {
-		log.Printf("[dryrun] write '%s' here\n", rel_path)
+		slog.Info("DRYRUN write feature here", "path", rel_path)
 	} else {
 		_, err = wr.Write(ctx, rel_path, fh)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to write deprecated feature %s, %w", rel_path, err)
 		}
 	}
 
@@ -213,13 +211,13 @@ func (c *Removal) deleteMediaFiles(ctx context.Context, req *RemovalRequest) err
 	rel_path, err := uri.Id2RelPath(req.Id)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to derive relative path for %d, %w", req.Id, err)
 	}
 
 	bucket, err := blob.OpenBucket(ctx, c.MediaSource)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to open bucket for media source, %w", err)
 	}
 
 	defer bucket.Close()
@@ -240,16 +238,16 @@ func (c *Removal) deleteMediaFiles(ctx context.Context, req *RemovalRequest) err
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Bucket iterator triggered an error, %w", err)
 		}
 
 		if c.Dryrun {
-			log.Printf("[dryrun] delete '%s' here\n", obj.Key)
+			slog.Info("DRYRUN delete key", "key", obj.Key)
 		} else {
 			err = bucket.Delete(ctx, obj.Key)
 
 			if err != nil {
-				return err
+				return fmt.Errorf("Failed to delete %s, %w", obj.Key, err)
 			}
 		}
 	}
@@ -260,46 +258,45 @@ func (c *Removal) deleteMediaFiles(ctx context.Context, req *RemovalRequest) err
 	return nil
 }
 
-func (c *Removal) deprecateFeature(fh io.ReadCloser) (io.ReadCloser, error) {
+func (c *Removal) deprecateFeature(r io.ReadCloser) (io.ReadCloser, error) {
 
-	body, err := io.ReadAll(fh)
+	body, err := io.ReadAll(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to read body from feature, %w", err)
 	}
 
 	now := time.Now()
 
-	body, err = sjson.SetBytes(body, "properties.edtf:deprecated", now.Format("2006-01-02"))
-
-	if err != nil {
-		return nil, err
+	updates := map[string]interface{}{
+		"properties.edtf:deprecated":  now.Format("2006-01-02"),
+		"properties.mz:is_current":    0,
+		"properties.wof:lastmodified": now.Unix(),
 	}
 
-	body, err = sjson.SetBytes(body, "properties.mz:is_current", 0)
+	for path, value := range updates {
 
-	if err != nil {
-		return nil, err
+		body, err = sjson.SetBytes(body, path, value)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to assign %s property, %w", path, err)
+		}
 	}
 
-	body, err = sjson.SetBytes(body, "properties.wof:lastmodified", now.Unix())
-
-	if err != nil {
-		return nil, err
+	remove := []string{
+		"properties.media:properties.sizes",
+		"properties.media:properties.colours",
 	}
 
-	body, err = sjson.DeleteBytes(body, "properties.media:properties.sizes")
+	for _, path := range remove {
 
-	if err != nil {
-		return nil, err
+		body, err = sjson.DeleteBytes(body, path)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to remove %s property, %w", path, err)
+		}
 	}
 
-	body, err = sjson.DeleteBytes(body, "properties.media:properties.colours")
-
-	if err != nil {
-		return nil, err
-	}
-
-	r := bytes.NewReader(body)
-	return ioutil.NewReadSeekCloser(r)
+	new_r := bytes.NewReader(body)
+	return ioutil.NewReadSeekCloser(new_r)
 }

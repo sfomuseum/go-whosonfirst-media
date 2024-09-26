@@ -3,7 +3,6 @@ package clone
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -56,7 +55,7 @@ func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
 		exists, err := opts.Target.Exists(ctx, target_path)
 
 		if err != nil {
-			return target_path, err
+			return target_path, fmt.Errorf("Failed to determine if %s exists, %w", target_path, err)
 		}
 
 		if exists {
@@ -64,15 +63,17 @@ func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
 		}
 	}
 
+	// Copy the image file itself
+
 	image_path := opts.Filename
 
-	source_fh, err := opts.Source.NewReader(ctx, image_path, nil)
+	source_r, err := opts.Source.NewReader(ctx, image_path, nil)
 
 	if err != nil {
-		return target_path, err
+		return target_path, fmt.Errorf("Failed to create reader for %s, %w", image_path, err)
 	}
 
-	defer source_fh.Close()
+	defer source_r.Close()
 
 	// this is where we might transform a source image (scaling it, converting
 	// image format, etc.) prior to processing (20191121/thisisaaronland)
@@ -80,48 +81,50 @@ func CloneImage(ctx context.Context, opts *CloneImageOptions) (string, error) {
 	target_wr, err := opts.Target.NewWriter(ctx, target_path, nil)
 
 	if err != nil {
-		return target_path, err
+		return target_path, fmt.Errorf("Failed to create writer for %s, %w", target_path, err)
 	}
 
-	_, err = io.Copy(target_wr, source_fh)
+	_, err = io.Copy(target_wr, source_r)
 
 	if err != nil {
 		opts.Target.Delete(ctx, target_path)
-		return target_path, err
+		return target_path, fmt.Errorf("Failed to copy %s to %s, %w", image_path, target_path, err)
 	}
 
 	err = target_wr.Close()
 
 	if err != nil {
-		return target_path, err
+		return target_path, fmt.Errorf("Failed to close %s after writing, %w", target_path, err)
 	}
+
+	// Copy the WOF record associated with the image file
 
 	if opts.Feature != nil {
 
 		if opts.ID == 0 {
-			return "", errors.New("Missing feature ID")
+			return "", fmt.Errorf("Feature ID is missing.")
 		}
 
 		feature_path := fmt.Sprintf("%d.geojson", opts.ID)
-		feature_fh := opts.Feature
+		feature_r := opts.Feature
 
 		feature_wr, err := opts.Target.NewWriter(ctx, feature_path, nil)
 
 		if err != nil {
-			return feature_path, err
+			return feature_path, fmt.Errorf("Failed to create new writer for %s, %w", feature_path, err)
 		}
 
-		_, err = io.Copy(feature_wr, feature_fh)
+		_, err = io.Copy(feature_wr, feature_r)
 
 		if err != nil {
 			opts.Target.Delete(ctx, feature_path)
-			return feature_path, err
+			return feature_path, fmt.Errorf("Failed to copy feature to %s, %w", feature_path, err)
 		}
 
 		err = feature_wr.Close()
 
 		if err != nil {
-			return feature_path, err
+			return feature_path, fmt.Errorf("Failed to close %s after writing, %w", feature_path, err)
 		}
 	}
 

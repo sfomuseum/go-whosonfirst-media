@@ -3,9 +3,8 @@ package media
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	_ "log"
+	"log/slog"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -62,7 +61,7 @@ func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depi
 	pr, err := id.NewProvider(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create new ID provider, %w", err)
 	}
 
 	return NewMediaFeatureWithProvider(ctx, pr, rsp, depicts, opts)
@@ -72,13 +71,13 @@ func NewMediaFeature(ctx context.Context, rsp *gather.GatherImagesResponse, depi
 func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gather.GatherImagesResponse, depicts []byte, opts *NewMediaFeatureOptions) ([]byte, error) {
 
 	if opts.Repo == "" {
-		return nil, errors.New("Missing wof:repo")
+		return nil, fmt.Errorf("Options missing Repo (wof:repo) property.")
 	}
 
 	centroid, _, err := properties.Centroid(depicts)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to derive centroid for feature being depicted, %w", err)
 	}
 
 	coords := []float64{
@@ -96,6 +95,11 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 	if err != nil {
 		return nil, fmt.Errorf("Failed to derive ID, %w", err)
 	}
+
+	logger := slog.Default()
+	logger = logger.With("depicts", depicts_id)
+
+	logger.Debug("Create new depiction feature")
 
 	depicts_name, err := properties.Name(depicts)
 
@@ -120,8 +124,10 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 	wof_id, err := pr.NewID(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to yield new ID from provider, %w", err)
 	}
+
+	logger = logger.With("id", wof_id)
 
 	wof_name := depicts_name
 
@@ -130,7 +136,7 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		name, err := opts.NameFunction(depicts_name)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Failed to derive name for feature depicted (using NameFunction), %w", err)
 		}
 
 		wof_name = name
@@ -146,7 +152,7 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		pt, err := placetypes.GetPlacetypeByName(opts.DepictsPlacetype)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Failed to deriveplacetype '%s', %w", opts.DepictsPlacetype, err)
 		}
 
 		roles := []string{
@@ -208,15 +214,6 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 
 	props["mz:is_approximate"] = 1
 
-	/*
-		props["mz:latitude"] = depicts_coords.Y
-		props["mz:longitude"] = depicts_coords.X
-		props["mz:min_latitude"] = depicts_coords.Y
-		props["mz:min_longitude"] = depicts_coords.X
-		props["mz:max_latitude"] = depicts_coords.Y
-		props["mz:max_longitude"] = depicts_coords.X
-	*/
-
 	if opts.CustomProperties != nil {
 		for k, v := range opts.CustomProperties {
 			props[k] = v
@@ -229,20 +226,21 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 	case ".jpg", ".jpeg":
 
 		im_fname := filepath.Base(rsp.Path)
-		im_fh, err := opts.SourceBucket.NewReader(ctx, im_fname, nil)
+		im_r, err := opts.SourceBucket.NewReader(ctx, im_fname, nil)
 
 		if err != nil {
 			return nil, err
 		}
 
 		exif.RegisterParsers(mknote.All...)
-		im_exif, err := exif.Decode(im_fh)
+		im_exif, err := exif.Decode(im_r)
 
 		if err == nil {
+			logger.Debug("Failed to decode EXIF data from image", "error", err)
 			exif_data = im_exif
 		}
 
-		im_fh.Close()
+		im_r.Close()
 
 	default:
 		// pass
@@ -284,7 +282,7 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 			}
 
 		} else {
-			// log.Printf("Failed to wrangle dates for 'DateTimeOriginal' tag, %s\n", err)
+			logger.Debug("Failed to wrangle dates for 'DateTimeOriginal' tag", "error", err)
 		}
 
 		// geo stuff
@@ -312,5 +310,6 @@ func NewMediaFeatureWithProvider(ctx context.Context, pr id.Provider, rsp *gathe
 		return nil, err
 	}
 
+	logger.Debug("Return new depiction feature")
 	return enc_f, nil
 }

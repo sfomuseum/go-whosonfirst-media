@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/whosonfirst/go-writer/v3"
@@ -26,7 +27,7 @@ func NewWriter(ctx context.Context, uri string) (writer.Writer, error) {
 	r, err := writer.NewWriter(ctx, uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create new writer for %s, %w", uri, err)
 	}
 
 	writers[uri] = r

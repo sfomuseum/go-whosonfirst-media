@@ -1,6 +1,8 @@
 // package rotate provides common methods for rotating image files.
 package rotate
 
+// THIS NEEDS TO BE UPDATED TO USE aws-sdk-go-v2
+
 import (
 	"bytes"
 	"context"

@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"mime"
 	"path/filepath"
 	"strings"
@@ -95,7 +95,7 @@ func GatherImagesWithOptions(ctx context.Context, opts *GatherImagesOptions) err
 				err := opts.Callback(rsp)
 
 				if err != nil {
-					log.Printf("Failed to process %s, %s\n", rsp.Path, err)
+					slog.Error("Failed to process gathered image", "path", rsp.Path, "error", err)
 				}
 
 			}(gather_rsp)
@@ -118,6 +118,11 @@ func CrawlImages(ctx context.Context, opts *GatherImagesOptions, rsp_ch chan *Ga
 	var list func(context.Context, *blob.Bucket, string) error
 
 	list = func(ctx context.Context, b *blob.Bucket, prefix string) error {
+
+		logger := slog.Default()
+		logger = logger.With("prefix", prefix)
+
+		logger.Debug("Crawl images")
 
 		iter := b.List(&blob.ListOptions{
 			Delimiter: "/",
@@ -154,16 +159,21 @@ func CrawlImages(ctx context.Context, opts *GatherImagesOptions, rsp_ch chan *Ga
 				continue
 			}
 
+			logger = logger.With("path", obj.Key)
+
+			logger.Debug("Gather images")
+
 			rsp, err := GatherImageResponseWithPath(ctx, opts, obj.Key)
 
 			if err != nil {
-				return err
+				return fmt.Errorf("Failed to gather images for %s, %w", obj.Key, err)
 			}
 
 			if rsp == nil {
 				continue
 			}
 
+			logger.Debug("Dispatch images")
 			rsp_ch <- rsp
 		}
 

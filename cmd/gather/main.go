@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
+
+	_ "gocloud.dev/blob/fileblob"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 
 	"github.com/sfomuseum/go-whosonfirst-media/operations/gather"
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 		enc, err := json.Marshal(rsp)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to marshal gather image response, %w", err)
 		}
 
 		fmt.Println(string(enc))
@@ -35,8 +36,6 @@ func main() {
 	}
 
 	for _, uri := range flag.Args() {
-
-		log.Println(uri)
 
 		bucket, err := blob.OpenBucket(ctx, uri)
 
@@ -47,7 +46,7 @@ func main() {
 		err = gather.GatherImages(ctx, bucket, cb)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Failed to gather images, %v", err)
 		}
 	}
 }

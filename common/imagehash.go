@@ -3,8 +3,9 @@ package common
 import (
 	"context"
 	"errors"
+	"fmt"
 	"image"
-	"log"
+	"log/slog"
 
 	"github.com/corona10/goimagehash"
 	"gocloud.dev/blob"
@@ -22,18 +23,18 @@ type ImageHashRsp struct {
 // using the corona10/goimagehash package.
 func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) ([]*ImageHashRsp, error) {
 
-	fh, err := bucket.NewReader(ctx, im_path, nil)
+	r, err := bucket.NewReader(ctx, im_path, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create reader for %s, %w", im_path, err)
 	}
 
-	defer fh.Close()
+	defer r.Close()
 
-	im, _, err := image.Decode(fh)
+	im, _, err := image.Decode(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to decode image from %s, %w", im_path, err)
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -80,7 +81,7 @@ func ImageHashes(ctx context.Context, bucket *blob.Bucket, im_path string) ([]*I
 		case <-done_ch:
 			remaining -= 1
 		case err := <-err_ch:
-			log.Println(err)
+			slog.Error("Image hash channel received error", "error", err)
 		case rsp := <-rsp_ch:
 			hashes = append(hashes, rsp)
 		}
@@ -113,7 +114,7 @@ func imageHash(ctx context.Context, im image.Image, approach string) (*ImageHash
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to process image hash appoach '%s', %w", approach, err)
 	}
 
 	switch approach {
@@ -142,5 +143,5 @@ func imageHash(ctx context.Context, im image.Image, approach string) (*ImageHash
 		// pass
 	}
 
-	return nil, errors.New("Impossible condition")
+	return nil, fmt.Errorf("Impossible condition")
 }

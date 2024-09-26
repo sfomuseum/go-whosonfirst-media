@@ -8,6 +8,7 @@ import (
 	"gocloud.dev/blob"
 )
 
+// ExtractText will return the text contained in the body of 'path' derived using 'e'.
 func ExtractText(ctx context.Context, e emboss.Embosser, bucket *blob.Bucket, path string) ([]byte, error) {
 
 	r, err := bucket.NewReader(ctx, path, nil)

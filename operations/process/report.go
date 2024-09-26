@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"mime"
 	"net/url"
 	"path/filepath"
@@ -165,15 +164,15 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		// pass
 	}
 
-	fh, err := p.Reports.NewReader(ctx, report_uri, nil)
+	r, err := p.Reports.NewReader(ctx, report_uri, nil)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new reader for '%s', %w", report_uri, err)
 	}
 
-	defer fh.Close()
+	defer r.Close()
 
-	body, err := io.ReadAll(fh)
+	body, err := io.ReadAll(r)
 
 	if err != nil {
 		return fmt.Errorf("Failed to read report for '%s', %w", report_uri, err)
@@ -209,7 +208,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		id, err := strconv.ParseInt(str_id, 10, 64)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to parse string ID '%s', %w", str_id, err)
 		}
 
 		wof_id = id
@@ -223,7 +222,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	wof_path, err := uri.Id2RelPath(wof_id)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to derive rel path for ID %d, %w", wof_id, err)
 	}
 
 	wof_fname := filepath.Base(wof_path)
@@ -232,30 +231,30 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	// reader.Reader because we need the bucket in order to prune
 	// files below (20191125/thisisaaronland)
 
-	wof_fh, err := p.Pending.NewReader(ctx, wof_fname, nil)
+	wof_r, err := p.Pending.NewReader(ctx, wof_fname, nil)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create new reader for %s, %w", wof_fname, err)
 	}
 
-	defer wof_fh.Close()
+	defer wof_r.Close()
 
-	old_feature, err := io.ReadAll(wof_fh)
+	old_feature, err := io.ReadAll(wof_r)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read feature %s, %w", wof_fname, err)
 	}
 
 	new_feature, err := p.appendReport(old_feature, process_report)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to append report to feature %s, %w", wof_fname, err)
 	}
 
 	new_feature, err = p.Exporter.Export(ctx, new_feature)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to re-export feature %s, %w", wof_fname, err)
 	}
 
 	repo_rsp := gjson.GetBytes(new_feature, "properties.wof:repo")
@@ -286,7 +285,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 	feature_readcloser, err := ioutil.NewReadSeekCloser(feature_reader)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create ReadSeekCloser from new feature, %w", err)
 	}
 
 	_, err = wr.Write(ctx, wof_path, feature_readcloser)
@@ -321,10 +320,15 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 
 			defer wg.Done()
 
+			logger := slog.Default()
+			logger = logger.With("key", key)
+
+			logger.Debug("Prune key")
+
 			exists, err := bucket.Exists(ctx, key)
 
 			if err != nil {
-				log.Printf("Failed to determine if '%s' exists, %s\n", key, err)
+				logger.Error("Failed to determine if key exists", "error", err)
 				return
 			}
 
@@ -335,7 +339,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 			err = bucket.Delete(ctx, key)
 
 			if err != nil {
-				log.Printf("Failed to delete %s, %s\n", key, err)
+				logger.Error("Failed to delete key", "error", err)
 			}
 		}
 
@@ -357,19 +361,28 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 	id_rsp := gjson.GetBytes(body, "properties.wof:id")
 
 	if !id_rsp.Exists() {
-		return nil, errors.New("Missing properties.wof:id")
+		return nil, fmt.Errorf("Missing properties.wof:id")
 	}
 
-	body, err := sjson.SetBytes(body, "properties.media:fingerprint", report.OriginFingerprint)
+	logger := slog.Default()
+	logger = logger.With("wof id", id_rsp.Int())
 
-	if err != nil {
-		return nil, err
+	logger.Debug("Append report")
+
+	updates := map[string]interface{}{
+		"properties.media:fingerprint":        report.OriginFingerprint,
+		"properties.media:properties.colours": report.Palette,
 	}
 
-	body, err = sjson.SetBytes(body, "properties.media:properties.colours", report.Palette)
+	var err error
 
-	if err != nil {
-		return nil, err
+	for path, value := range updates {
+
+		body, err = sjson.SetBytes(body, path, value)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to update %s property for record, %w", path, err)
+		}
 	}
 
 	sizes := make(map[string]MediaPropertiesSize)
@@ -382,7 +395,7 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 		u, ok := report.URIs[k]
 
 		if !ok {
-			log.Println("Missing URI key", k)
+			logger.Debug("Report URIs missing key, skipping", "key", k)
 			continue
 		}
 
@@ -392,8 +405,7 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 		mimetype := mime.TypeByExtension(ext)
 
 		if mimetype == "" {
-			msg := fmt.Sprintf("Unknown mimetype %s (%s)", ext, fname)
-			log.Println(msg)
+			logger.Debug("Unknown mimetype, skipping", "filename", fname, "ext", ext)
 			continue
 		}
 
@@ -418,16 +430,18 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 		sizes[k] = sz
 	}
 
-	body, err = sjson.SetBytes(body, "properties.media:properties.sizes", sizes)
-
-	if err != nil {
-		return nil, err
+	updates = map[string]interface{}{
+		"properties.media:properties.sizes": sizes,
+		"properties.media:status_id":        1,
 	}
 
-	body, err = sjson.SetBytes(body, "properties.media:status_id", 1)
+	for path, value := range updates {
 
-	if err != nil {
-		return nil, err
+		body, err = sjson.SetBytes(body, path, value)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to assign %s property, %w", path, err)
+		}
 	}
 
 	source_rsp := gjson.GetBytes(body, "properties.media:source")
@@ -435,18 +449,21 @@ func (p *ReportProcessor) appendReport(body []byte, report *IIIFProcessReport) (
 	if !source_rsp.Exists() {
 
 		body, err = sjson.SetBytes(body, "properties.media:source", "unknown")
+
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Failed to assign properties.media:source property, %w", err)
 		}
 	}
 
 	if p.URITemplateFunc != nil {
+
 		body, err = p.URITemplateFunc(body)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Failed to apply URITemplateFunc, %w", err)
 		}
 	}
 
+	logger.Debug("Finished appending report")
 	return body, nil
 }
