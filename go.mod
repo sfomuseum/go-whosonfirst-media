@@ -10,7 +10,7 @@ require (
 	github.com/go-iiif/go-iiif-uri v0.5.2
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sfomuseum/go-text-emboss v0.0.11
-	github.com/tidwall/gjson v1.17.3
+	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
@@ -20,7 +20,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.7.3
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
 	github.com/whosonfirst/go-writer/v3 v3.1.1
-	gocloud.dev v0.39.0
+	gocloud.dev v0.40.0
 )
 
 require (
