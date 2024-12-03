@@ -159,6 +159,8 @@ func CrawlImages(ctx context.Context, opts *GatherImagesOptions, rsp_ch chan *Ga
 				continue
 			}
 
+			logger := slog.Default()
+			logger = logger.With("prefix", prefix)
 			logger = logger.With("path", obj.Key)
 
 			logger.Debug("Gather images")
@@ -166,6 +168,7 @@ func CrawlImages(ctx context.Context, opts *GatherImagesOptions, rsp_ch chan *Ga
 			rsp, err := GatherImageResponseWithPath(ctx, opts, obj.Key)
 
 			if err != nil {
+				logger.Error("Failed to gather images", "error", err)
 				return fmt.Errorf("Failed to gather images for %s, %w", obj.Key, err)
 			}
 
