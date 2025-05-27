@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package org_sfomuseum_text_embosser;
+option go_package = "github.com/sfomuseum/go-text-emboss/grpc";
+
+service TextEmbosser {
+	rpc EmbossText(EmbossTextRequest) returns (EmbossTextResponse) {}
+}
+
+message EmbossTextResult {
+    string Text = 1;
+    string Source = 2;
+    int64 Created = 3;
+}
+
+message EmbossTextRequest {
+	string Filename = 1;
+	bytes Body = 2;
+}
+
+message EmbossTextResponse {
+	string Filename = 1;
+    EmbossTextResult Result = 2;
+}

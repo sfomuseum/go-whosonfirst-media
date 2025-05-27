@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sfomuseum/go-text-emboss"
+	"github.com/sfomuseum/go-text-emboss/v2"
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"gocloud.dev/blob"
 )

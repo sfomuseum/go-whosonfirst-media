@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-text-emboss"
+	"github.com/sfomuseum/go-text-emboss/v2"
 	"gocloud.dev/blob"
 )
 
