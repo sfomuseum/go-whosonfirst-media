@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-reader/v2"
 )
 
 var readers = make(map[string]reader.Reader)

@@ -18,7 +18,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
+	"github.com/whosonfirst/go-whosonfirst-export/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
 	"gocloud.dev/blob"
@@ -251,7 +251,7 @@ func (p *ReportProcessor) ProcessReport(ctx context.Context, report_uri string) 
 		return fmt.Errorf("Failed to append report to feature %s, %w", wof_fname, err)
 	}
 
-	new_feature, err = p.Exporter.Export(ctx, new_feature)
+	_, new_feature, err = p.Exporter.Export(ctx, new_feature)
 
 	if err != nil {
 		return fmt.Errorf("Failed to re-export feature %s, %w", wof_fname, err)

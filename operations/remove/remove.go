@@ -15,7 +15,7 @@ import (
 	"github.com/sfomuseum/go-whosonfirst-media/common"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
+	"github.com/whosonfirst/go-whosonfirst-export/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"gocloud.dev/blob"
 )
@@ -180,7 +180,7 @@ func (c *Removal) deprecateMedia(ctx context.Context, req *RemovalRequest) error
 		return fmt.Errorf("Failed to read body for deprecated feature (%s), %w", rel_path, err)
 	}
 
-	body, err = c.Exporter.Export(ctx, body)
+	_, body, err = c.Exporter.Export(ctx, body)
 
 	if err != nil {
 		return fmt.Errorf("Failed to export deprecated feature (%s), %w", rel_path, err)
